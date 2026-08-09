@@ -11,46 +11,54 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
 
 ## Features
 
-- **Grouped, tabular host list** — hosts are grouped by `--`-separated
-  segments in their alias, nested to whatever depth the name implies:
-  `net--edgeucg...` → group `net`; `srv--nas--trunas...` → group `srv` >
-  subgroup `nas` > leaf `trunas...`. Aliases without a `--` land in an
-  `other` group. Within each group, rows are laid out in aligned
-  columns: status, alias, Hostname, Port (shows `22` when not explicitly
-  set), User, and an Extra column (`Yes`/`No`) flagging whether the host has
-  any directives beyond Hostname/User/Port. Column widths adapt to the
-  longest visible value each render.
-- **Connect with Enter** — selecting a host exits the TUI cleanly and execs
-  `ssh <alias>` in the same terminal, so you land directly in your SSH
-  session (including password/passphrase prompts) exactly as if you'd typed
-  `ssh <alias>` yourself.
-- **Live reachability check** — each row shows a status dot (`●` green =
-  up, `●` red = down/unreachable, `○` grey = checking) from a background TCP
-  connect check to the host's port (default 22, or its configured `Port`).
-  Runs on startup and on demand with `r`.
-- **Search / filter** — press `/` to filter the list live as you type,
-  matching against alias, hostname, user, and port. `extra:yes` / `extra:no`
-  filters by whether a host has directives beyond Hostname/User/Port. Built
-  for scale: filtering re-renders from the already-loaded config (no disk
-  re-read per keystroke), so it stays responsive even with hundreds of
-  hosts. `Escape` clears the filter and returns focus to the list.
-- **Add / edit / delete / clone hosts** — a form with dedicated fields for
-  `Hostname` / `User` / `Port`, plus a repeatable parameter row for any other
-  `ssh_config` directive. The directive field is a dropdown of ~48 common
-  directives (`ProxyJump`, `IdentityFile`, `KexAlgorithms`,
-  `ServerAliveInterval`, etc.) with a **Custom...** option for anything not
-  listed, so arbitrary directives are always supported. `c` clones the
-  selected host into a new one with the same settings, pre-filling a unique
-  `<alias>-copy` name you can rename before saving; a duplicate-alias name is
-  rejected inline rather than crashing or silently overwriting.
-- **Non-intrusive edits** — powered by `sshconf`, which edits `~/.ssh/config`
-  in place: existing comments, blank lines, and per-host formatting quirks
-  are preserved. Only the specific values you actually change are sent to
-  the underlying line-rewrite — the edit form always shows every core field,
-  but only ones that differ from their original value get touched, so
-  saving one field doesn't silently reformat another untouched line.
+- **Grouped, tabular host list**
+  - Groups nest by `--`-separated alias segments, to whatever depth the
+    name implies — `net--edgeucg...` → group `net`; `srv--nas--trunas...`
+    → `srv` > `nas` > `trunas...`. Aliases without a `--` land in `other`.
+  - Columns: status, alias, Hostname, Port (shows `22` when unset), User,
+    and Extra (`Yes`/`No` for directives beyond Hostname/User/Port).
+  - Column widths auto-adjust to the longest visible value each render.
+
+- **Connect with `Enter`**
+  - Exits the TUI cleanly, then execs `ssh <alias>` in the same terminal —
+    same experience as typing the command yourself, including password
+    prompts.
+
+- **Live reachability check**
+  - Status dot per row: `●` green = up, `●` red = down/unreachable, `○`
+    grey = checking.
+  - Background TCP connect check against the host's port (default `22`,
+    or its configured `Port`).
+  - Runs on startup and on demand with `r`.
+
+- **Search / filter (`/`)**
+  - Matches alias, hostname, user, and port as you type.
+  - `extra:yes` / `extra:no` — exact filter on whether a host has
+    directives beyond Hostname/User/Port.
+  - Re-renders from the already-loaded config, not a fresh disk read per
+    keystroke — stays responsive with hundreds of hosts.
+  - `Escape` clears the filter and returns focus to the list.
+
+- **Add / edit / delete / clone hosts**
+  - Form fields for `Hostname` / `User` / `Port`, plus repeatable rows for
+    any other `ssh_config` directive.
+  - Directive dropdown covers ~48 common options (`ProxyJump`,
+    `IdentityFile`, `KexAlgorithms`, `ServerAliveInterval`, etc.) with a
+    **Custom...** fallback for anything else.
+  - `c` clones the selected host, pre-filling a unique `<alias>-copy` name
+    you can rename before saving.
+  - Duplicate-alias saves are rejected inline rather than crashing or
+    silently overwriting.
+
+- **Non-intrusive edits**
+  - Powered by `sshconf` — comments, blank lines, and per-host formatting
+    quirks are preserved.
+  - Only fields that actually changed get rewritten, so editing one field
+    never silently reformats an untouched line.
+
 - **Recent/frequent sort** — within each group, hosts you've connected to
   most recently (then most often) sort to the top.
+
 - **Automatic backup** — before the first write in any run, the current
   `~/.ssh/config` is snapshotted to `~/.config/sshtui/backups/`.
 
