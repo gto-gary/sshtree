@@ -1,0 +1,2 @@
+[console_scripts]
+sshtui = sshtui.app:run
