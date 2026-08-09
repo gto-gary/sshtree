@@ -207,9 +207,6 @@ sshtui/
 - **Single file only** — `Include` directives in `~/.ssh/config` (for
   pulling in other config files) are not followed; only the top-level file
   is read and written.
-- **Reachability is TCP-only** — the status dot reflects whether the host's
-  port accepts a TCP connection, not whether SSH authentication would
-  actually succeed.
 - **Grouping is alias-based** — grouping is purely a string convention
   (every `--`-separated segment of the alias becomes a nesting level), not
   a configurable taxonomy.
