@@ -14,8 +14,8 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
 - **Grouped, tabular host list**
   - Each `--` in a host's alias adds another level of nesting, so groups
     automatically match however you've named your hosts:
-    - `net--edgeucg...` → group `net`, host `edgeucg...`
-    - `srv--nas--trunas...` → group `srv` > subgroup `nas`, host `trunas...`
+    - `net--examplerouter1` → group `net`, host `examplerouter1`
+    - `srv--nas--examplenas` → group `srv` > subgroup `nas`, host `examplenas`
     - No `--` at all → falls into a single `other` group
   - Columns: status, alias, Hostname, Port (shows `22` when unset), User,
     and Extra (`Yes`/`No` for directives beyond Hostname/User/Port).
