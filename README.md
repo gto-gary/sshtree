@@ -11,10 +11,11 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
 
 ## Features
 
-- **Grouped, tabular host list** — hosts are grouped by the prefix before
-  `--` in their alias (`net--edgeucg...` → group `net`), matching a
-  `net--` / `srv--` / `lab--` naming convention. Aliases without a `--` land
-  in an `other` group. Within each group, rows are laid out in aligned
+- **Grouped, tabular host list** — hosts are grouped by `--`-separated
+  segments in their alias, nested to whatever depth the name implies:
+  `net--edgeucg...` → group `net`; `srv--nas--trunas...` → group `srv` >
+  subgroup `nas` > leaf `trunas...`. Aliases without a `--` land in an
+  `other` group. Within each group, rows are laid out in aligned
   columns: status, alias, Hostname, Port (shows `22` when not explicitly
   set), User, and an Extra column (`Yes`/`No`) flagging whether the host has
   any directives beyond Hostname/User/Port. Column widths adapt to the
@@ -219,9 +220,9 @@ identical to `ssh`, just a cosmetic change.
 - **Reachability is TCP-only** — the status dot reflects whether the host's
   port accepts a TCP connection, not whether SSH authentication would
   actually succeed.
-- **Grouping is alias-based** — the `net--` / `srv--` / `lab--` grouping is
-  purely a string convention (split on the first `--`), not a configurable
-  taxonomy.
+- **Grouping is alias-based** — grouping is purely a string convention
+  (every `--`-separated segment of the alias becomes a nesting level), not
+  a configurable taxonomy.
 - **No Windows support** — relies on `os.execvp` and POSIX terminal
   semantics.
 

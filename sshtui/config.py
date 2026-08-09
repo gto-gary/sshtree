@@ -60,14 +60,14 @@ def host_params(conf: SshConfigFile, alias: str) -> dict[str, str]:
     return conf.host(alias)
 
 
-def group_by_prefix(aliases: list[str]) -> dict[str, list[str]]:
-    groups: dict[str, list[str]] = {}
-    for alias in aliases:
-        prefix = alias.split("--", 1)[0] if "--" in alias else "other"
-        groups.setdefault(prefix, []).append(alias)
-    for group in groups.values():
-        group.sort()
-    return groups
+def alias_segments(alias: str) -> list[str]:
+    """Split an alias into hierarchical group segments on "--", with the
+    last segment being the leaf's own display name. "srv--nas--trunas..."
+    -> ["srv", "nas", "trunas..."] (nests two levels deep); a bare alias
+    with no "--" at all falls into a single "other" group."""
+    if "--" not in alias:
+        return ["other", alias]
+    return alias.split("--")
 
 
 def save(conf: SshConfigFile) -> None:

@@ -39,6 +39,30 @@ def _version_line() -> str:
 BANNER_TEXT = f"{BANNER_ART}\n{_version_line()}"
 
 
+class _GroupNode:
+    """One level of the alias-prefix hierarchy: subgroups plus leaf hosts
+    that terminate at this level. Built fresh from config.alias_segments()
+    on every render, so it naturally supports any nesting depth - e.g.
+    "srv--nas--trunas..." nests two levels under "srv" > "nas"."""
+
+    __slots__ = ("children", "leaves")
+
+    def __init__(self) -> None:
+        self.children: dict[str, "_GroupNode"] = {}
+        self.leaves: dict[str, str] = {}  # display_name -> full alias
+
+
+def _build_group_tree(aliases: list[str]) -> _GroupNode:
+    root = _GroupNode()
+    for alias in aliases:
+        segments = config.alias_segments(alias)
+        node = root
+        for part in segments[:-1]:
+            node = node.children.setdefault(part, _GroupNode())
+        node.leaves[segments[-1]] = alias
+    return root
+
+
 class HostListScreen(Screen):
     BINDINGS = [
         Binding("a", "add_host", "Add"),
@@ -89,18 +113,28 @@ class HostListScreen(Screen):
             aliases = [a for a in aliases if self._matches_filter(a)]
         ordered = history.sort_aliases(aliases)
         order_index = {alias: i for i, alias in enumerate(ordered)}
-        groups = config.group_by_prefix(aliases)
         self._col_widths = self._compute_col_widths(aliases)
         self._update_column_header()
         self._alias_nodes = {}
-        for group_name in sorted(groups):
-            group_aliases = sorted(groups[group_name], key=lambda a: order_index[a])
-            group_node = tree.root.add(group_name, expand=True)
-            for alias in group_aliases:
-                params = config.host_params(self.conf, alias)
-                label = self._row_label(alias, params, self._status.get(alias, "unknown"))
-                node = group_node.add_leaf(label, data=alias)
-                self._alias_nodes[alias] = node
+        group_tree = _build_group_tree(aliases)
+        self._render_group(group_tree, tree.root, order_index)
+
+    def _render_group(
+        self, group: "_GroupNode", tree_node: TreeNode, order_index: dict[str, int]
+    ) -> None:
+        for name in sorted(group.children):
+            child_node = tree_node.add(name, expand=True)
+            self._render_group(group.children[name], child_node, order_index)
+        for display_name in sorted(
+            group.leaves, key=lambda n: order_index[group.leaves[n]]
+        ):
+            alias = group.leaves[display_name]
+            params = config.host_params(self.conf, alias)
+            label = self._row_label(
+                alias, display_name, params, self._status.get(alias, "unknown")
+            )
+            node = tree_node.add_leaf(label, data=alias)
+            self._alias_nodes[alias] = node
 
     def _matches_filter(self, alias: str) -> bool:
         params = config.host_params(self.conf, alias)
@@ -113,8 +147,8 @@ class HostListScreen(Screen):
         widths = {"alias": len("Alias"), "hostname": len("Hostname"), "user": len("User")}
         for alias in aliases:
             params = config.host_params(self.conf, alias)
-            display_alias = alias.split("--", 1)[1] if "--" in alias else alias
-            widths["alias"] = max(widths["alias"], len(display_alias))
+            display_name = config.alias_segments(alias)[-1]
+            widths["alias"] = max(widths["alias"], len(display_name))
             widths["hostname"] = max(widths["hostname"], len(params.get("hostname", "")))
             widths["user"] = max(widths["user"], len(params.get("user", "")))
         return widths
@@ -141,17 +175,18 @@ class HostListScreen(Screen):
         )
         self.query_one("#column-header", Static).update(header)
 
-    def _row_label(self, alias: str, params: dict, status: str) -> str:
+    def _row_label(
+        self, alias: str, display_name: str, params: dict, status: str
+    ) -> str:
         icon = STATUS_ICON[status]
         color = STATUS_COLOR[status]
         hostname = params.get("hostname", "")
         user = params.get("user", "")
         port = params.get("port", "22")
-        display_alias = alias.split("--", 1)[1] if "--" in alias else alias
         has_extra = any(k not in config.CORE_FIELDS for k in params)
         extra = "Yes" if has_extra else "No"
         w = self._col_widths
-        alias_col = display_alias.ljust(w["alias"])
+        alias_col = display_name.ljust(w["alias"])
         hostname_col = hostname.ljust(w["hostname"])
         port_col = str(port).rjust(5)
         user_col = user.ljust(w["user"])
@@ -318,10 +353,14 @@ class HostListScreen(Screen):
             targets[alias] = (host, port)
             self._status[alias] = "unknown"
             node = self._alias_nodes[alias]
-            node.set_label(self._row_label(alias, params, "unknown"))
+            display_name = config.alias_segments(alias)[-1]
+            node.set_label(self._row_label(alias, display_name, params, "unknown"))
         async for alias, ok in reachability.check_all(targets):
             self._status[alias] = "up" if ok else "down"
             node = self._alias_nodes.get(alias)
             if node is not None:
                 params = config.host_params(self.conf, alias)
-                node.set_label(self._row_label(alias, params, self._status[alias]))
+                display_name = config.alias_segments(alias)[-1]
+                node.set_label(
+                    self._row_label(alias, display_name, params, self._status[alias])
+                )
