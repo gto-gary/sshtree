@@ -78,7 +78,10 @@ class HostListScreen(Screen):
     def compose(self) -> ComposeResult:
         yield Header()
         yield Static(BANNER_TEXT, id="banner")
-        yield Input(placeholder="Search hosts (alias, hostname, user)...", id="search-input")
+        yield Input(
+            placeholder="Search (alias, hostname, user, port; or extra:yes/no)...",
+            id="search-input",
+        )
         yield Static("", id="column-header")
         yield Tree("Hosts", id="host-tree")
         yield Footer()
@@ -137,11 +140,21 @@ class HostListScreen(Screen):
             self._alias_nodes[alias] = node
 
     def _matches_filter(self, alias: str) -> bool:
+        text = self._filter_text
         params = config.host_params(self.conf, alias)
+        if text.startswith("extra:"):
+            has_extra = any(k not in config.CORE_FIELDS for k in params)
+            want = text.split(":", 1)[1].strip()
+            if want in ("yes", "y", "true"):
+                return has_extra
+            if want in ("no", "n", "false"):
+                return not has_extra
+            return False
+        port = params.get("port", "22")
         haystack = " ".join(
-            [alias, params.get("hostname", ""), params.get("user", "")]
+            [alias, params.get("hostname", ""), params.get("user", ""), str(port)]
         ).lower()
-        return self._filter_text in haystack
+        return text in haystack
 
     def _compute_col_widths(self, aliases: list[str]) -> dict[str, int]:
         widths = {"alias": len("Alias"), "hostname": len("Hostname"), "user": len("User")}

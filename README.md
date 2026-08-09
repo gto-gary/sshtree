@@ -29,10 +29,11 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
   connect check to the host's port (default 22, or its configured `Port`).
   Runs on startup and on demand with `r`.
 - **Search / filter** — press `/` to filter the list live as you type,
-  matching against alias, hostname, and user. Built for scale: filtering
-  re-renders from the already-loaded config (no disk re-read per keystroke),
-  so it stays responsive even with hundreds of hosts. `Escape` clears the
-  filter and returns focus to the list.
+  matching against alias, hostname, user, and port. `extra:yes` / `extra:no`
+  filters by whether a host has directives beyond Hostname/User/Port. Built
+  for scale: filtering re-renders from the already-loaded config (no disk
+  re-read per keystroke), so it stays responsive even with hundreds of
+  hosts. `Escape` clears the filter and returns focus to the list.
 - **Add / edit / delete / clone hosts** — a form with dedicated fields for
   `Hostname` / `User` / `Port`, plus a repeatable parameter row for any other
   `ssh_config` directive. The directive field is a dropdown of ~48 common
@@ -139,9 +140,14 @@ installed.
 
 Press `/` to jump into the search box (from anywhere except while already
 typing in it), then type to filter live — matches are checked against the
-alias, `Hostname`, and `User` of every host. Groups with no matches are
-hidden entirely. Press `Enter` to jump back into the filtered list, or
+alias, `Hostname`, `User`, and `Port` of every host. Groups with no matches
+are hidden entirely. Press `Enter` to jump back into the filtered list, or
 `Escape` at any point to clear the filter and see everything again.
+
+Typing `extra:yes` filters to only hosts with directives beyond
+Hostname/User/Port (the `Extra` column); `extra:no` filters to hosts
+without any. This is an exact flag match rather than a substring search,
+since "has extra params" is a yes/no property, not text to search within.
 
 Group headers (`net`, `srv`, `lab`, `other`) can be expanded/collapsed with
 `Enter` or `Space` while highlighted.
