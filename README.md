@@ -193,31 +193,6 @@ sshtui/
 | `~/.config/sshtui/history.json` | `{alias: {count, last_used}}` — drives the recent/frequent sort. |
 | `~/.config/sshtui/backups/config-<timestamp>` | Snapshot of `~/.ssh/config` taken before the first write each run. |
 
-### Why `Enter` doesn't hang on the password prompt
-
-Textual apps hold the terminal in raw/alt-screen mode while running. If
-`ssh` were exec'd immediately inside the key-press handler, its password
-prompt would render into a terminal Textual hadn't finished releasing yet,
-and appear to hang. Instead, selecting a host calls `self.app.exit(alias)`,
-which lets Textual fully tear down and restore the terminal; only *after*
-`App.run()` returns (in `app.py`) does `run()` call
-`os.execvp("ssh", ["ssh", alias])` — by which point the terminal is back to
-normal and `ssh` behaves exactly as if you'd typed the command yourself.
-
-### The `Key=Value` normalization
-
-`ssh_config` allows directives to be written as either `Key value` or
-`Key=value`. The `sshconf` library's parser only understands the
-space-separated form — a `Key=value` line gets silently detached from its
-host block (no host association at all), so it wouldn't show up when
-editing, and would be orphaned as a dead line if that host were ever
-deleted. `config.py`'s `load()` rewrites any `Key=value` line to `Key value`
-before handing the file to `sshconf`, so every directive is visible and
-safely editable regardless of which syntax was originally used. This means
-the first time you save an edit on a host that used `=` syntax, those lines
-will be rewritten to space-separated form in the file — functionally
-identical to `ssh`, just a cosmetic change.
-
 ## Known limitations
 
 - **Single file only** — `Include` directives in `~/.ssh/config` (for
