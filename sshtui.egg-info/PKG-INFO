@@ -1,7 +1,0 @@
-Metadata-Version: 2.4
-Name: sshtui
-Version: 0.1.0
-Summary: TUI for browsing, connecting to, and editing SSH config hosts
-Requires-Python: >=3.11
-Requires-Dist: textual>=8.2.8
-Requires-Dist: sshconf>=0.2.7

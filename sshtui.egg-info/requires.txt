@@ -1,2 +1,0 @@
-textual>=8.2.8
-sshconf>=0.2.7
