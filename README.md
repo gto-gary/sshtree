@@ -27,8 +27,7 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
     prompts.
 
 - **Live reachability check**
-  - Status dot per row: `●` green = up, `●` red = down/unreachable, `○`
-    grey = checking.
+  - Status dot per row: 🟢 up, 🔴 down/unreachable, ⚪ checking.
   - Background TCP connect check against the host's port (default `22`,
     or its configured `Port`).
   - Runs on startup and on demand with `r`.
