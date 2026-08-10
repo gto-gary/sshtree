@@ -20,6 +20,7 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
   - Columns: status, alias, Hostname, Port (shows `22` when unset), User,
     and Extra (`Yes`/`No` for directives beyond Hostname/User/Port).
   - Column widths auto-adjust to the longest visible value each render.
+  - Groups and the hosts within them are sorted alphabetically.
 
 - **Connect with `Enter`**
   - Exits the TUI cleanly, then execs `ssh <alias>` in the same terminal —
@@ -57,8 +58,6 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
   - Only fields that actually changed get rewritten, so editing one field
     never silently reformats an untouched line.
 
-- **Recent/frequent sort** — within each group, hosts you've connected to
-  most recently (then most often) sort to the top.
 
 - **Automatic backup** — before the first write in any run, the current
   `~/.ssh/config` is snapshotted to `~/.config/sshtui/backups/`.

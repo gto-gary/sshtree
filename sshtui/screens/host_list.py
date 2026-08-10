@@ -114,23 +114,17 @@ class HostListScreen(Screen):
         aliases = config.list_aliases(self.conf)
         if self._filter_text:
             aliases = [a for a in aliases if self._matches_filter(a)]
-        ordered = history.sort_aliases(aliases)
-        order_index = {alias: i for i, alias in enumerate(ordered)}
         self._col_widths = self._compute_col_widths(aliases)
         self._update_column_header()
         self._alias_nodes = {}
         group_tree = _build_group_tree(aliases)
-        self._render_group(group_tree, tree.root, order_index)
+        self._render_group(group_tree, tree.root)
 
-    def _render_group(
-        self, group: "_GroupNode", tree_node: TreeNode, order_index: dict[str, int]
-    ) -> None:
+    def _render_group(self, group: "_GroupNode", tree_node: TreeNode) -> None:
         for name in sorted(group.children):
             child_node = tree_node.add(name, expand=True)
-            self._render_group(group.children[name], child_node, order_index)
-        for display_name in sorted(
-            group.leaves, key=lambda n: order_index[group.leaves[n]]
-        ):
+            self._render_group(group.children[name], child_node)
+        for display_name in sorted(group.leaves):
             alias = group.leaves[display_name]
             params = config.host_params(self.conf, alias)
             label = self._row_label(
