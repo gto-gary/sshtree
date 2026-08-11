@@ -9,6 +9,14 @@ minor releases.
 
 ## [Unreleased]
 
+### Added
+
+- `--print-only` CLI flag: prints the selected host's alias instead of
+  connecting directly, for use by a wrapping shell function.
+- Optional shell integration (`shell/sshtui.zsh`, `shell/sshtui.bash`):
+  after an SSH session ends, the up arrow recalls `ssh <alias>` and lets
+  you reconnect directly without reopening the picker.
+
 ## [0.2.0] - 2026-08-10
 
 ### Added

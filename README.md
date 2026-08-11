@@ -26,6 +26,9 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
   - Exits the TUI cleanly, then execs `ssh <alias>` in the same terminal —
     same experience as typing the command yourself, including password
     prompts.
+  - Optional shell integration (`shell/sshtui.zsh` / `.bash`) makes the up
+    arrow recall `ssh <alias>` after the session ends, so you can
+    reconnect directly without reopening the picker.
 
 - **Live reachability check**
   - Status dot per row: 🟢 up, 🔴 down/unreachable, ⚪ checking.
@@ -143,6 +146,30 @@ installed.
 | `/` | Focus the search box |
 | `Escape` | Clear the search filter and return focus to the list |
 | `q` | Quit |
+
+### Reconnecting with the up arrow
+
+By default, `sshtui` connects by exec'ing `ssh <alias>` directly, which
+means your shell only ever sees "ran `sshtui`" in its history - not the
+actual `ssh` command - so pressing the up arrow after a session ends (from
+quitting, an idle timeout, or a dropped connection) just recalls `sshtui`
+again, reopening the picker.
+
+To make the up arrow recall `ssh <alias>` instead - so you can reconnect
+directly without going back through the picker - source the shell function
+in `shell/sshtui.zsh` (or `shell/sshtui.bash`) from your shell rc file:
+
+```sh
+# ~/.zshrc
+source /path/to/sshtui/shell/sshtui.zsh
+```
+
+This defines a `sshtui` shell function that shadows the installed command:
+it runs the picker in `--print-only` mode (which prints the chosen alias
+instead of connecting directly), injects `ssh <alias>` into your shell's
+history, then connects. The function falls through to nothing on quit
+without selecting a host. Use `command sshtui` if you ever need to bypass
+the function and reach the plain installed command directly.
 
 ### Searching
 
