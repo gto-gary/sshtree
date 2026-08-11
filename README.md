@@ -156,13 +156,17 @@ quitting, an idle timeout, or a dropped connection) just recalls `sshtui`
 again, reopening the picker.
 
 To make the up arrow recall `ssh <alias>` instead - so you can reconnect
-directly without going back through the picker - source the shell function
-in `shell/sshtui.zsh` (or `shell/sshtui.bash`) from your shell rc file:
+directly without going back through the picker - set up the shell function:
 
-```sh
-# ~/.zshrc
-source /path/to/sshtui/shell/sshtui.zsh
-```
+1. Add this line to your shell rc file, adjusting the path to wherever
+   you cloned this repo:
+
+   ```sh
+   # ~/.zshrc (or ~/.bashrc, sourcing shell/sshtui.bash instead)
+   source /path/to/sshtui/shell/sshtui.zsh
+   ```
+
+2. Reload it - `source ~/.zshrc`, or just open a new terminal.
 
 This defines a `sshtui` shell function that shadows the installed command:
 it runs the picker in `--print-only` mode (which prints the chosen alias
@@ -170,6 +174,9 @@ instead of connecting directly), injects `ssh <alias>` into your shell's
 history, then connects. The function falls through to nothing on quit
 without selecting a host. Use `command sshtui` if you ever need to bypass
 the function and reach the plain installed command directly.
+
+No reinstall is needed for this - it's a plain shell rc change, unrelated
+to how `sshtui` itself is installed.
 
 ### Searching
 
