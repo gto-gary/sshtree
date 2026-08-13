@@ -16,6 +16,32 @@ minor releases.
 - Optional shell integration (`shell/sshtui.zsh`, `shell/sshtui.bash`):
   after an SSH session ends, the up arrow recalls `ssh <alias>` and lets
   you reconnect directly without reopening the picker.
+- Directives that legitimately repeat (e.g. multiple `IdentityFile`
+  entries) are now fully supported end to end: the edit form renders one
+  row per value instead of collapsing them, and saving writes them back
+  as separate lines in the order shown.
+
+### Fixed
+
+- A host with any directive listed twice (e.g. `Port` accidentally
+  duplicated) crashed the app - `sshconf` returns repeated directives as
+  a list, and several places (`check_reachability`, row rendering,
+  search, column widths) assumed a plain string. All now handle both.
+- Row labels are built via Rich markup string interpolation; a
+  Hostname/User value containing `[...]`-bracket syntax was interpreted
+  as styling instead of shown literally. Values are now escaped before
+  interpolation.
+- Editing a host that already had a multi-value directive (e.g. two
+  `IdentityFile` lines) and saving would silently collapse them into one
+  invalid comma-joined line, breaking that directive for `ssh` with no
+  error shown. Fixed by the same multi-row support noted above.
+- `sshconf.set()` reassigns multi-value lists via `list.pop()`, which
+  reverses order on disk - significant for order-sensitive directives
+  like `IdentityFile`, where `ssh` tries entries in the listed order.
+  `config.update_host()` now pre-reverses list values to cancel that out.
+- Adding two parameter rows with the same directive silently kept only
+  the last one (dict overwrite); both are now correctly preserved as a
+  multi-value directive.
 
 ## [0.2.0] - 2026-08-10
 

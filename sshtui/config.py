@@ -60,6 +60,37 @@ def host_params(conf: SshConfigFile, alias: str) -> dict[str, str]:
     return conf.host(alias)
 
 
+# ssh_config directives can legitimately repeat (multiple IdentityFile
+# entries being the common case), and sshconf.host() returns a list for
+# any key that appeared more than once. These helpers normalize that for
+# the different things callers need it for: a single display string, a
+# comparable form for change detection, or one representative value.
+
+
+def flatten_value(value: object) -> str:
+    """Join a possibly-multi-value directive into one display string."""
+    if isinstance(value, list):
+        return ", ".join(str(v) for v in value)
+    return str(value) if value else ""
+
+
+def normalize_value(value: object) -> tuple[str, ...]:
+    """Normalize into a comparable tuple, so change-detection works the
+    same whether a directive has one value or several."""
+    if isinstance(value, list):
+        return tuple(str(v) for v in value)
+    return (str(value),) if value else ()
+
+
+def primary_value(value: object) -> str:
+    """Pick one representative value from a possibly-multi-value
+    directive, for uses (like a reachability check) where only one makes
+    sense - matches ssh's own first-occurrence-wins precedence."""
+    if isinstance(value, list):
+        return str(value[0]) if value else ""
+    return str(value) if value else ""
+
+
 def alias_segments(alias: str) -> list[str]:
     """Split an alias into hierarchical group segments on "--", with the
     last segment being the leaf's own display name. "srv--nas--trunas..."
@@ -93,6 +124,16 @@ def update_host(
     removed_keys: list[str] | None = None,
 ) -> None:
     if params:
+        # sshconf.set() reassigns multi-value lists via list.pop(), which
+        # consumes from the end - so a list handed to it comes out
+        # reversed on disk. Order matters for directives like IdentityFile
+        # (ssh tries them in the order listed), so pre-reverse here to
+        # cancel that out. Only set() does this; add() (new hosts) appends
+        # in the given order correctly and needs no compensation.
+        params = {
+            k: list(reversed(v)) if isinstance(v, list) else v
+            for k, v in params.items()
+        }
         conf.set(alias, **params)
     if removed_keys:
         conf.unset(alias, *removed_keys)

@@ -8,6 +8,8 @@ from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Label, Select, Static
 
+from .. import config
+
 CORE_LABELS = {"hostname": "Hostname", "user": "User", "port": "Port"}
 
 # Common ssh_config Host-block directives, offered as a dropdown so Gary
@@ -96,7 +98,7 @@ class KeyValueRow(Horizontal):
         return self.query_one(".kv-value", Input).value.strip()
 
 
-class HostEditScreen(ModalScreen[tuple[str, dict[str, str]] | None]):
+class HostEditScreen(ModalScreen[tuple[str, dict[str, "str | list[str]"]] | None]):
     def __init__(
         self,
         alias: str | None = None,
@@ -124,24 +126,29 @@ class HostEditScreen(ModalScreen[tuple[str, dict[str, str]] | None]):
             for key, label in CORE_LABELS.items():
                 yield Label(label)
                 yield Input(
-                    value=self._flatten(self.existing.get(key, "")), id=f"field-{key}"
+                    value=config.flatten_value(self.existing.get(key, "")),
+                    id=f"field-{key}",
                 )
             yield Label("Other parameters")
             with VerticalScroll(id="kv-rows"):
                 for key, value in self.existing.items():
                     if key in CORE_LABELS:
                         continue
-                    yield KeyValueRow(key, self._flatten(value))
+                    # A directive that appeared multiple times (e.g. two
+                    # IdentityFile lines) comes back as a list from
+                    # sshconf - render one row per value, all sharing the
+                    # same directive, rather than collapsing them into one
+                    # comma-joined row (which would corrupt them into a
+                    # single invalid line on save).
+                    if isinstance(value, list):
+                        for v in value:
+                            yield KeyValueRow(key, str(v))
+                    else:
+                        yield KeyValueRow(key, config.flatten_value(value))
             with Horizontal(id="edit-buttons"):
                 yield Button("+ Add parameter", id="add-row")
                 yield Button("Save", id="save", variant="success")
                 yield Button("Cancel", id="cancel", variant="error")
-
-    @staticmethod
-    def _flatten(value: object) -> str:
-        if isinstance(value, list):
-            return ", ".join(str(v) for v in value)
-        return str(value) if value else ""
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "add-row":
@@ -165,14 +172,21 @@ class HostEditScreen(ModalScreen[tuple[str, dict[str, str]] | None]):
         if alias != self.editing_alias and alias in self.taken_aliases:
             self._show_alias_error(f"'{alias}' already exists - pick another name.")
             return
-        params: dict[str, str] = {}
+        params: dict[str, str | list[str]] = {}
         for key in CORE_LABELS:
             value = self.query_one(f"#field-{key}", Input).value.strip()
             if value:
                 params[key] = value
+        # Group rows by key: a directive with only one row stays a plain
+        # string (matching existing output), one with several becomes a
+        # list - sshconf writes a list as separate repeated lines, which
+        # is what makes multi-value directives like IdentityFile work.
+        grouped: dict[str, list[str]] = {}
         for row in self.query(KeyValueRow):
             key = row.key.lower()
             value = row.value_text
             if key and value:
-                params[key] = value
+                grouped.setdefault(key, []).append(value)
+        for key, values in grouped.items():
+            params[key] = values[0] if len(values) == 1 else values
         self.dismiss((alias, params))

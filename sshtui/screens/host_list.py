@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from importlib.metadata import PackageNotFoundError, version as _pkg_version
 
+from rich.markup import escape as markup_escape
 from textual import events, work
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -144,9 +145,14 @@ class HostListScreen(Screen):
             if want in ("no", "n", "false"):
                 return not has_extra
             return False
-        port = params.get("port", "22")
+        port = config.flatten_value(params.get("port", "22"))
         haystack = " ".join(
-            [alias, params.get("hostname", ""), params.get("user", ""), str(port)]
+            [
+                alias,
+                config.flatten_value(params.get("hostname", "")),
+                config.flatten_value(params.get("user", "")),
+                port,
+            ]
         ).lower()
         return text in haystack
 
@@ -155,9 +161,11 @@ class HostListScreen(Screen):
         for alias in aliases:
             params = config.host_params(self.conf, alias)
             display_name = config.alias_segments(alias)[-1]
+            hostname = config.flatten_value(params.get("hostname", ""))
+            user = config.flatten_value(params.get("user", ""))
             widths["alias"] = max(widths["alias"], len(display_name))
-            widths["hostname"] = max(widths["hostname"], len(params.get("hostname", "")))
-            widths["user"] = max(widths["user"], len(params.get("user", "")))
+            widths["hostname"] = max(widths["hostname"], len(hostname))
+            widths["user"] = max(widths["user"], len(user))
         return widths
 
     # Tree indents leaf rows by 2 guide levels (root -> group -> leaf) at
@@ -187,16 +195,21 @@ class HostListScreen(Screen):
     ) -> str:
         icon = STATUS_ICON[status]
         color = STATUS_COLOR[status]
-        hostname = params.get("hostname", "")
-        user = params.get("user", "")
-        port = params.get("port", "22")
+        hostname = config.flatten_value(params.get("hostname", ""))
+        user = config.flatten_value(params.get("user", ""))
+        port = config.flatten_value(params.get("port", "22"))
         has_extra = any(k not in config.CORE_FIELDS for k in params)
         extra = "Yes" if has_extra else "No"
         w = self._col_widths
-        alias_col = display_name.ljust(w["alias"])
-        hostname_col = hostname.ljust(w["hostname"])
-        port_col = str(port).rjust(5)
-        user_col = user.ljust(w["user"])
+        # Values ultimately come from ~/.ssh/config, not just what was
+        # typed through this app's own forms - escape them before
+        # interpolating into Rich markup so a hostname/user containing
+        # literal "[...]" text (accidentally or from an untrusted/shared
+        # config) can't be interpreted as styling.
+        alias_col = markup_escape(display_name.ljust(w["alias"]))
+        hostname_col = markup_escape(hostname.ljust(w["hostname"]))
+        port_col = markup_escape(port.rjust(5))
+        user_col = markup_escape(user.ljust(w["user"]))
         return (
             f"[{color}]{icon}[/] {alias_col}  [dim]{hostname_col}[/]  "
             f"{port_col}  {user_col}  {extra}"
@@ -301,7 +314,8 @@ class HostListScreen(Screen):
         changed_params = {
             key: value
             for key, value in params.items()
-            if HostEditScreen._flatten(existing.get(key, "")) != value
+            if config.normalize_value(existing.get(key, ""))
+            != config.normalize_value(value)
         }
         config.update_host(self.conf, alias, changed_params, removed_keys=removed_keys)
         config.save(self.conf)
@@ -355,8 +369,16 @@ class HostListScreen(Screen):
         targets: dict[str, tuple[str, int]] = {}
         for alias in self._alias_nodes:
             params = config.host_params(self.conf, alias)
-            host = params.get("hostname", alias)
-            port = int(params.get("port", reachability.DEFAULT_PORT))
+            # A directive repeated in the host block (e.g. Hostname or
+            # Port accidentally listed twice) comes back as a list from
+            # sshconf - take the first value, matching ssh's own
+            # first-occurrence-wins precedence, rather than crashing.
+            host = config.primary_value(params.get("hostname", alias)) or alias
+            port_str = config.primary_value(params.get("port", ""))
+            try:
+                port = int(port_str) if port_str else reachability.DEFAULT_PORT
+            except ValueError:
+                port = reachability.DEFAULT_PORT
             targets[alias] = (host, port)
             self._status[alias] = "unknown"
             node = self._alias_nodes[alias]
