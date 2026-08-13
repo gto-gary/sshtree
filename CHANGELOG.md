@@ -23,6 +23,14 @@ minor releases.
 
 ### Fixed
 
+- The add/edit host dialog had no scroll mechanism, so on a short
+  terminal the Save/Cancel buttons could be clipped off with no way to
+  reach them. The button row now lives outside the scrollable fields
+  area and stays pinned and visible regardless of terminal height; Tab
+  navigation reaches it without needing to scroll at all. Verified down
+  to an 80x10 terminal with a host that has 7 extra parameter rows -
+  full Tab sequence from the alias field through every row to Save
+  confirmed reachable.
 - A host with any directive listed twice (e.g. `Port` accidentally
   duplicated) crashed the app - `sshconf` returns repeated directives as
   a list, and several places (`check_reachability`, row rendering,

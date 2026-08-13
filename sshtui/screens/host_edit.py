@@ -119,32 +119,36 @@ class HostEditScreen(ModalScreen[tuple[str, dict[str, "str | list[str]"]] | None
             f"Edit host: {self.editing_alias}" if self.editing_alias else "Add host"
         )
         with Vertical(id="edit-dialog"):
-            yield Static(title, id="edit-title")
-            yield Label("Host (alias)")
-            yield Input(value=self.initial_alias, id="field-alias")
-            yield Static("", id="alias-error")
-            for key, label in CORE_LABELS.items():
-                yield Label(label)
-                yield Input(
-                    value=config.flatten_value(self.existing.get(key, "")),
-                    id=f"field-{key}",
-                )
-            yield Label("Other parameters")
-            with VerticalScroll(id="kv-rows"):
-                for key, value in self.existing.items():
-                    if key in CORE_LABELS:
-                        continue
-                    # A directive that appeared multiple times (e.g. two
-                    # IdentityFile lines) comes back as a list from
-                    # sshconf - render one row per value, all sharing the
-                    # same directive, rather than collapsing them into one
-                    # comma-joined row (which would corrupt them into a
-                    # single invalid line on save).
-                    if isinstance(value, list):
-                        for v in value:
-                            yield KeyValueRow(key, str(v))
-                    else:
-                        yield KeyValueRow(key, config.flatten_value(value))
+            # Buttons live outside this scroll area so they stay visible
+            # and Tab-reachable even on a short terminal, instead of
+            # being clipped off with no way to scroll down to them.
+            with VerticalScroll(id="edit-scroll"):
+                yield Static(title, id="edit-title")
+                yield Label("Host (alias)")
+                yield Input(value=self.initial_alias, id="field-alias")
+                yield Static("", id="alias-error")
+                for key, label in CORE_LABELS.items():
+                    yield Label(label)
+                    yield Input(
+                        value=config.flatten_value(self.existing.get(key, "")),
+                        id=f"field-{key}",
+                    )
+                yield Label("Other parameters")
+                with VerticalScroll(id="kv-rows"):
+                    for key, value in self.existing.items():
+                        if key in CORE_LABELS:
+                            continue
+                        # A directive that appeared multiple times (e.g. two
+                        # IdentityFile lines) comes back as a list from
+                        # sshconf - render one row per value, all sharing
+                        # the same directive, rather than collapsing them
+                        # into one comma-joined row (which would corrupt
+                        # them into a single invalid line on save).
+                        if isinstance(value, list):
+                            for v in value:
+                                yield KeyValueRow(key, str(v))
+                        else:
+                            yield KeyValueRow(key, config.flatten_value(value))
             with Horizontal(id="edit-buttons"):
                 yield Button("+ Add parameter", id="add-row")
                 yield Button("Save", id="save", variant="success")
