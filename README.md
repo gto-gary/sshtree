@@ -60,6 +60,10 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
     quirks are preserved.
   - Only fields that actually changed get rewritten, so editing one field
     never silently reformats an untouched line.
+  - Directives that legitimately repeat (multiple `IdentityFile` entries
+    being the common case) get one row per value in the edit form, and
+    are written back as separate lines in the order shown — not
+    collapsed into one invalid comma-joined line.
 
 
 - **Automatic backup** — before the first write in any run, the current
