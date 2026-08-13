@@ -9,6 +9,8 @@ minor releases.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-13
+
 ### Added
 
 - `--print-only` CLI flag: prints the selected host's alias instead of
