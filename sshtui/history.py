@@ -1,4 +1,7 @@
-"""Tracks recently/frequently used hosts for sshtui's default sort order."""
+"""Tracks recently/frequently used hosts (usage count, last-used time).
+
+Not currently used to drive display order (hosts sort alphabetically),
+but kept as a record in case that's wanted again later."""
 
 from __future__ import annotations
 
@@ -25,12 +28,3 @@ def record_use(alias: str) -> None:
     entry["last_used"] = time.strftime("%Y-%m-%dT%H:%M:%S")
     HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
     HISTORY_PATH.write_text(json.dumps(data, indent=2))
-
-
-def sort_aliases(aliases: list[str]) -> list[str]:
-    """Most-recently-used first (ties broken by count); never-used hosts last, alphabetically."""
-    data = _load()
-    used = [a for a in aliases if a in data]
-    unused = sorted(a for a in aliases if a not in data)
-    used.sort(key=lambda a: (data[a]["last_used"], data[a]["count"]), reverse=True)
-    return used + unused

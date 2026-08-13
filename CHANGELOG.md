@@ -42,6 +42,17 @@ minor releases.
 - Adding two parameter rows with the same directive silently kept only
   the last one (dict overwrite); both are now correctly preserved as a
   multi-value directive.
+- Connecting when `ssh` isn't on `PATH` raised a raw `FileNotFoundError`
+  traceback instead of a clean error message.
+- An alias with a leading/trailing/doubled `--` (e.g. `srv--`) produced
+  a blank-looking row (empty leaf display name) instead of falling back
+  to the `other` group with its literal alias shown.
+
+### Removed
+
+- `history.sort_aliases()` - dead code left over from before the switch
+  to alphabetical sorting; nothing called it anymore. `history.py` still
+  records usage (`record_use()`), just isn't read back for sort order.
 
 ## [0.2.0] - 2026-08-10
 

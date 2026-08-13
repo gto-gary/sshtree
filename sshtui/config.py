@@ -94,11 +94,16 @@ def primary_value(value: object) -> str:
 def alias_segments(alias: str) -> list[str]:
     """Split an alias into hierarchical group segments on "--", with the
     last segment being the leaf's own display name. "srv--nas--trunas..."
-    -> ["srv", "nas", "trunas..."] (nests two levels deep); a bare alias
-    with no "--" at all falls into a single "other" group."""
-    if "--" not in alias:
+    -> ["srv", "nas", "trunas..."] (nests two levels deep). Empty parts
+    from a leading/trailing/doubled "--" are dropped (so "srv----nas"
+    normalizes to ["srv", "nas"], same as "srv--nas"); an alias with no
+    "--" at all, or where dropping empties leaves fewer than 2 parts
+    (e.g. "srv--"), falls into a single "other" group with the literal
+    alias as its display name rather than showing a blank-looking row."""
+    parts = [p for p in alias.split("--") if p]
+    if len(parts) < 2:
         return ["other", alias]
-    return alias.split("--")
+    return parts
 
 
 def save(conf: SshConfigFile) -> None:

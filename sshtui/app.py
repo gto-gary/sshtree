@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import sys
 
 from textual.app import App
 
@@ -40,5 +41,9 @@ def run() -> None:
         return
     if args.print_only:
         print(alias)
-    else:
+        return
+    try:
         os.execvp("ssh", ["ssh", alias])
+    except FileNotFoundError:
+        print("error: 'ssh' not found on PATH", file=sys.stderr)
+        sys.exit(1)
