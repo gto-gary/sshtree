@@ -375,10 +375,9 @@ class HostListScreen(Screen):
             # first-occurrence-wins precedence, rather than crashing.
             host = config.primary_value(params.get("hostname", alias)) or alias
             port_str = config.primary_value(params.get("port", ""))
-            try:
-                port = int(port_str) if port_str else reachability.DEFAULT_PORT
-            except ValueError:
-                port = reachability.DEFAULT_PORT
+            # Port can be a named service (e.g. "ssh", "http"), resolved
+            # the same way ssh itself resolves it - not just a number.
+            port = reachability.resolve_port(port_str)
             targets[alias] = (host, port)
             self._status[alias] = "unknown"
             node = self._alias_nodes[alias]

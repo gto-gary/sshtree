@@ -3,10 +3,29 @@
 from __future__ import annotations
 
 import asyncio
+import socket
 from collections.abc import AsyncIterator
 
 TIMEOUT = 1.5
 DEFAULT_PORT = 22
+
+
+def resolve_port(value: str) -> int:
+    """Resolve an ssh_config Port value to an integer. ssh_config allows
+    named ports (e.g. "ssh", "http"), resolved the same way ssh itself
+    does - via the system's service database (/etc/services) - not just
+    plain numbers. Falls back to DEFAULT_PORT if the value is empty or
+    doesn't resolve either way, rather than raising."""
+    if not value:
+        return DEFAULT_PORT
+    try:
+        return int(value)
+    except ValueError:
+        pass
+    try:
+        return socket.getservbyname(value, "tcp")
+    except OSError:
+        return DEFAULT_PORT
 
 
 async def check_host(host: str, port: int = DEFAULT_PORT) -> bool:

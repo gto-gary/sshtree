@@ -47,6 +47,14 @@ minor releases.
 - An alias with a leading/trailing/doubled `--` (e.g. `srv--`) produced
   a blank-looking row (empty leaf display name) instead of falling back
   to the `other` group with its literal alias shown.
+- `Port` can legitimately be a named service (e.g. `Port ssh`, `Port
+  http`), resolved by `ssh` itself via `/etc/services` rather than being
+  a plain number. The reachability check previously fell back to the
+  default port (22) for any non-numeric value - coincidentally correct
+  for `Port ssh` but silently wrong for e.g. `Port http` (would check 22
+  instead of 80). Now resolved via `socket.getservbyname()`, the same
+  mechanism `ssh` uses; verified against `ssh -G` output for several
+  named ports.
 
 ### Removed
 
