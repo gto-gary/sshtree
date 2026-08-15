@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from textual.app import ComposeResult
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Label, Static
 
@@ -20,14 +20,18 @@ class ScpScreen(ModalScreen[ScpAction | None]):
 
     def compose(self) -> ComposeResult:
         with Vertical(id="scp-dialog"):
-            yield Static(f"Copy file: {self.alias}", id="scp-title")
-            yield Label("Local path")
-            with Horizontal(id="scp-local-row"):
-                yield Input(placeholder="/local/path/to/file", id="scp-local")
-                yield Button("Browse...", id="browse")
-            yield Label("Remote path")
-            yield Input(placeholder="/remote/path/to/file", id="scp-remote")
-            yield Static("", id="scp-error")
+            # Buttons live outside this scroll area so they stay visible
+            # and Tab-reachable even on a short terminal, same reasoning
+            # as HostEditScreen.
+            with VerticalScroll(id="scp-scroll"):
+                yield Static(f"Copy file: {self.alias}", id="scp-title")
+                yield Label("Local path")
+                with Horizontal(id="scp-local-row"):
+                    yield Input(placeholder="/local/path/to/file", id="scp-local")
+                    yield Button("Browse...", id="browse")
+                yield Label("Remote path")
+                yield Input(placeholder="/remote/path/to/file", id="scp-remote")
+                yield Static("", id="scp-error")
             with Horizontal(id="scp-buttons"):
                 yield Button("Upload →", id="upload", variant="success")
                 yield Button("← Download", id="download", variant="primary")
@@ -35,6 +39,13 @@ class ScpScreen(ModalScreen[ScpAction | None]):
 
     def _show_error(self, message: str) -> None:
         self.query_one("#scp-error", Static).update(message)
+
+    def on_input_changed(self, event: Input.Changed) -> None:
+        # Clear a stale error the moment the user starts fixing whatever
+        # field it was about, rather than leaving it up (and potentially
+        # misleading) until the next validation attempt.
+        if event.input.id in ("scp-local", "scp-remote"):
+            self._show_error("")
 
     @staticmethod
     def _start_dir_for_picker(current_value: str) -> str | None:

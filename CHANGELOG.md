@@ -34,6 +34,22 @@ minor releases.
   progress bar and an interactive `sftp` prompt both reach the real
   terminal correctly through the wrapper, not just when run directly.
 
+### Fixed
+
+- `ScpScreen` and `FilePickerScreen` had no scroll mechanism at all, so
+  on a short terminal (e.g. 80x10) their buttons rendered fully
+  off-screen with nothing to scroll them into view - worse than the
+  `HostEditScreen` bug fixed earlier, which at least clipped rather
+  than fully hid them. Fixed with the same pattern: buttons live
+  outside a `VerticalScroll` wrapping the rest of the content, so they
+  stay pinned and visible regardless of terminal height. Verified at
+  80x10 with region-visibility checks and a full Tab-navigation trace.
+- Error messages in `ScpScreen` and `FilePickerScreen` (e.g. "Local
+  file not found") persisted on screen even after the underlying field
+  was fixed, until the next validation attempt - misleadingly implying
+  a now-valid path was still wrong. Both now clear their error the
+  moment the relevant field changes.
+
 ## [0.3.0] - 2026-08-13
 
 ### Added

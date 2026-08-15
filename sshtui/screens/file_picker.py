@@ -6,7 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from textual.app import ComposeResult
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import ModalScreen
 from textual.widgets import Button, DirectoryTree, Input, Static
 
@@ -19,21 +19,29 @@ class FilePickerScreen(ModalScreen[str | None]):
 
     def compose(self) -> ComposeResult:
         with Vertical(id="picker-dialog"):
-            yield Static(
-                "Select a file, or navigate to a folder and use it directly",
-                id="picker-title",
-            )
-            with Horizontal(id="picker-jump"):
-                yield Input(value=self.start_path, id="picker-path-input")
-                yield Button("Go", id="jump")
-            yield DirectoryTree(self.start_path, id="picker-tree")
-            yield Static("", id="picker-error")
+            # Buttons live outside this scroll area so they stay visible
+            # and Tab-reachable even on a short terminal, same reasoning
+            # as HostEditScreen.
+            with VerticalScroll(id="picker-scroll"):
+                yield Static(
+                    "Select a file, or navigate to a folder and use it directly",
+                    id="picker-title",
+                )
+                with Horizontal(id="picker-jump"):
+                    yield Input(value=self.start_path, id="picker-path-input")
+                    yield Button("Go", id="jump")
+                yield DirectoryTree(self.start_path, id="picker-tree")
+                yield Static("", id="picker-error")
             with Horizontal(id="picker-buttons"):
                 yield Button("Use this folder", id="use-folder")
                 yield Button("Cancel", id="cancel", variant="error")
 
     def _show_error(self, message: str) -> None:
         self.query_one("#picker-error", Static).update(message)
+
+    def on_input_changed(self, event: Input.Changed) -> None:
+        if event.input.id == "picker-path-input":
+            self._show_error("")
 
     def on_directory_tree_file_selected(self, event: DirectoryTree.FileSelected) -> None:
         self.dismiss(str(event.path))
@@ -68,6 +76,6 @@ class FilePickerScreen(ModalScreen[str | None]):
         self._current_dir = str(path)
         old_tree = self.query_one("#picker-tree", DirectoryTree)
         await old_tree.remove()
-        await self.query_one("#picker-dialog", Vertical).mount(
+        await self.query_one("#picker-scroll", VerticalScroll).mount(
             DirectoryTree(str(path), id="picker-tree"), before="#picker-error"
         )

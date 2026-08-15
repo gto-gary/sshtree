@@ -23,7 +23,7 @@ HostEditScreen, ConfirmScreen, ScpScreen, FilePickerScreen {
     margin: 2 4;
 }
 
-#edit-scroll {
+#edit-scroll, #scp-scroll, #picker-scroll {
     height: 1fr;
 }
 
