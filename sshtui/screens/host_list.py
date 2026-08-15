@@ -72,7 +72,7 @@ class HostListScreen(Screen):
         Binding("e", "edit_host", "Edit"),
         Binding("c", "clone_host", "Clone"),
         Binding("f", "sftp_host", "SFTP"),
-        Binding("s", "scp_host", "Copy file"),
+        Binding("s", "scp_host", "SCP copy"),
         Binding("d", "delete_host", "Delete"),
         Binding("r", "refresh_reachability", "Refresh"),
         Binding("slash", "focus_search", "Search", show=True),
