@@ -13,7 +13,7 @@ from textual.widgets import Footer, Header, Input, Static, Tree
 from textual.widgets.tree import TreeNode
 
 from .. import config, history, reachability
-from ..actions import ConnectAction, ScpAction
+from ..actions import ConnectAction, ScpAction, SftpAction
 from .confirm import ConfirmScreen
 from .host_edit import HostEditScreen
 from .scp import ScpScreen
@@ -71,6 +71,7 @@ class HostListScreen(Screen):
         Binding("a", "add_host", "Add"),
         Binding("e", "edit_host", "Edit"),
         Binding("c", "clone_host", "Clone"),
+        Binding("f", "sftp_host", "SFTP"),
         Binding("s", "scp_host", "Copy file"),
         Binding("d", "delete_host", "Delete"),
         Binding("r", "refresh_reachability", "Refresh"),
@@ -360,6 +361,15 @@ class HostListScreen(Screen):
         # after Textual has released the terminal, so its progress bar
         # and any password/passphrase prompt behave normally.
         self.app.exit(result)
+
+    def action_sftp_host(self) -> None:
+        alias = self.selected_alias()
+        if alias is None:
+            return
+        history.record_use(alias)
+        # Same reasoning as connect: exit cleanly first, exec sftp only
+        # after Textual has released the terminal.
+        self.app.exit(SftpAction(alias))
 
     @work
     async def action_delete_host(self) -> None:

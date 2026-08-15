@@ -1,9 +1,10 @@
-"""What HostListScreen exits with: connect via ssh, or copy a file via scp.
+"""What HostListScreen exits with: connect via ssh, drop into an sftp
+prompt, or copy a file via scp.
 
 Each action knows how to render itself as newline-separated lines for
 --print-only mode. A shell wrapper (see shell/) captures that output via
-$(...) and runs the real ssh/scp command itself, *after* the capture has
-completed - so the real command gets a normal terminal, not one whose
+$(...) and runs the real ssh/sftp/scp command itself, *after* the capture
+has completed - so the real command gets a normal terminal, not one whose
 stdout is being captured. One line per field keeps the shell-side parsing
 trivial (no shell-quoting needed to survive spaces in paths)."""
 
@@ -19,6 +20,14 @@ class ConnectAction:
 
     def print_only_lines(self) -> list[str]:
         return ["connect", self.alias]
+
+
+@dataclass(frozen=True)
+class SftpAction:
+    alias: str
+
+    def print_only_lines(self) -> list[str]:
+        return ["sftp", self.alias]
 
 
 @dataclass(frozen=True)

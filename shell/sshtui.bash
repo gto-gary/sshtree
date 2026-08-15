@@ -1,19 +1,19 @@
 # sshtui shell integration for bash.
 #
-# After an SSH session ends - whether you quit normally, it timed out, or
-# the connection dropped - pressing the up arrow recalls the real command
-# (ssh, or scp for a file copy) so you can reconnect or retry directly,
-# without going back through the sshtui picker.
+# After a session ends - whether you quit normally, it timed out, or the
+# connection dropped - pressing the up arrow recalls the real command
+# (ssh, sftp, or scp for a file copy) so you can reconnect or retry
+# directly, without going back through the sshtui picker.
 #
 # Usage: add this to your ~/.bashrc:
 #   source /path/to/sshtui/shell/sshtui.bash
 #
 # How this works: `command sshtui --print-only` runs the picker and prints
-# what was chosen as plain lines (never runs ssh/scp itself in this mode).
-# This function captures that via $(...), then runs the real ssh/scp
-# itself *after* that capture has completed - so the real interactive
-# command gets a normal terminal, not one whose stdout is being captured
-# (which would otherwise swallow scp's progress bar, or ssh's output).
+# what was chosen as plain lines (never runs ssh/sftp/scp itself in this
+# mode). This function captures that via $(...), then runs the real
+# command itself *after* that capture has completed - so it gets a normal
+# terminal, not one whose stdout is being captured (which would otherwise
+# swallow scp's progress bar, or an interactive sftp prompt).
 #
 # This defines a shell function named `sshtui` that shadows the installed
 # `sshtui` command for interactive use. Use `command sshtui` to bypass it.
@@ -30,6 +30,11 @@ sshtui() {
             local host="${lines[1]}"
             history -s "ssh $host"
             ssh "$host"
+            ;;
+        sftp)
+            local host="${lines[1]}"
+            history -s "sftp $host"
+            sftp "$host"
             ;;
         scp)
             local direction="${lines[1]}" host="${lines[2]}" \

@@ -9,11 +9,11 @@ from pathlib import Path
 
 from textual.app import App
 
-from .actions import ConnectAction, ScpAction
+from .actions import ConnectAction, ScpAction, SftpAction
 from .screens.host_list import HostListScreen
 
 
-class SshTuiApp(App["ConnectAction | ScpAction"]):
+class SshTuiApp(App["ConnectAction | SftpAction | ScpAction"]):
     CSS_PATH = "app.css"
     TITLE = "sshtui"
 
@@ -38,7 +38,7 @@ def run() -> None:
 
     # App.run() blocks until the app exits and the terminal is fully
     # restored, then returns whatever was passed to Screen.exit(...).
-    # Only then is it safe to exec ssh/scp into the same terminal.
+    # Only then is it safe to exec ssh/sftp/scp into the same terminal.
     result = SshTuiApp().run()
     if result is None:
         return
@@ -53,6 +53,12 @@ def run() -> None:
             os.execvp("ssh", ["ssh", result.alias])
         except FileNotFoundError:
             print("error: 'ssh' not found on PATH", file=sys.stderr)
+            sys.exit(1)
+    elif isinstance(result, SftpAction):
+        try:
+            os.execvp("sftp", ["sftp", result.alias])
+        except FileNotFoundError:
+            print("error: 'sftp' not found on PATH", file=sys.stderr)
             sys.exit(1)
     elif isinstance(result, ScpAction):
         # Only the local side needs expanding here - "~" isn't expanded

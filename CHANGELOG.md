@@ -11,18 +11,21 @@ minor releases.
 
 ### Added
 
+- Drop into an interactive `sftp` prompt on the selected host (`f`).
+  Same clean-exit-then-exec pattern as connecting.
 - Copy a file to/from the selected host via `scp` (`s`): prompts for a
   local path and remote path, then upload or download. Same
   clean-exit-then-exec pattern as connecting - `scp`'s progress bar and
   any password prompt behave like typing the command yourself. Works
   the same directly or through the shell-integration wrapper.
 - `--print-only` mode reworked to print the chosen action as plain
-  lines (`connect <alias>`, or `scp <upload|download> <alias> <local>
-  <remote>`) instead of just an alias, so the wrapper can run either
-  `ssh` or `scp` afterward and inject the right command into shell
-  history for either. The real command always runs after the picker's
-  own output has been fully captured and consumed, so it gets a normal
-  terminal either way - confirmed `scp`'s progress bar reaches the real
+  lines (`connect <alias>`, `sftp <alias>`, or `scp <upload|download>
+  <alias> <local> <remote>`) instead of just an alias, so the wrapper
+  can run `ssh`, `sftp`, or `scp` afterward and inject the right
+  command into shell history for any of them. The real command always
+  runs after the picker's own output has been fully captured and
+  consumed, so it gets a normal terminal either way - confirmed `scp`'s
+  progress bar and an interactive `sftp` prompt both reach the real
   terminal correctly through the wrapper, not just when run directly.
 
 ## [0.3.0] - 2026-08-13

@@ -30,6 +30,11 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
     arrow recall `ssh <alias>` after the session ends, so you can
     reconnect directly without reopening the picker.
 
+- **Drop into `sftp` with `f`**
+  - Same clean-exit-then-exec pattern as connecting — exits the TUI, then
+    execs `sftp <alias>` into an interactive `sftp>` prompt in the same
+    terminal. Works through the shell-integration wrapper too.
+
 - **Copy a file with `s`**
   - Prompts for a local path and remote path, then upload or download —
     same clean-exit-then-exec pattern as connecting, so `scp`'s progress
@@ -153,6 +158,7 @@ installed.
 | `a` | Add a new host |
 | `e` | Edit the selected host |
 | `c` | Clone the selected host into a new one |
+| `f` | Drop into an `sftp` prompt on the selected host |
 | `s` | Copy a file to/from the selected host via `scp` |
 | `d` | Delete the selected host (asks for confirmation) |
 | `r` | Refresh reachability checks for all hosts |
@@ -162,11 +168,11 @@ installed.
 
 ### Reconnecting with the up arrow
 
-By default, `sshtui` connects (or copies a file) by exec'ing `ssh`/`scp`
-directly, which means your shell only ever sees "ran `sshtui`" in its
-history - not the actual command - so pressing the up arrow afterward (from
-quitting, an idle timeout, a dropped connection, or a finished file copy)
-just recalls `sshtui` again, reopening the picker.
+By default, `sshtui` connects, opens `sftp`, or copies a file by exec'ing
+`ssh`/`sftp`/`scp` directly, which means your shell only ever sees "ran
+`sshtui`" in its history - not the actual command - so pressing the up
+arrow afterward (from quitting, an idle timeout, a dropped connection, or
+a finished file copy) just recalls `sshtui` again, reopening the picker.
 
 To make the up arrow recall the real `ssh`/`scp` command instead - so you
 can reconnect or retry directly without going back through the picker -
