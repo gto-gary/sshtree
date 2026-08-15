@@ -9,6 +9,8 @@ minor releases.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-08-15
+
 ### Added
 
 - Drop into an interactive `sftp` prompt on the selected host (`f`).
