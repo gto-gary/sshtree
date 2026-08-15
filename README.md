@@ -156,7 +156,9 @@ uv tool uninstall sshtui
 Run `sshtui` from any shell. The top of the screen shows an ASCII banner
 with the app name and the installed version, read dynamically from package
 metadata (`importlib.metadata`) so it always matches whatever's actually
-installed.
+installed. Next to it, a live summary shows the total host count and a
+reachability breakdown (up/down/checking) for whatever's currently
+visible - narrows to match when you filter with `/`.
 
 | Key | Action |
 |---|---|

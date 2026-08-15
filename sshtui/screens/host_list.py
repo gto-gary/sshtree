@@ -8,6 +8,7 @@ from rich.markup import escape as markup_escape
 from textual import events, work
 from textual.app import ComposeResult
 from textual.binding import Binding
+from textual.containers import Horizontal
 from textual.screen import Screen
 from textual.widgets import Footer, Header, Input, Static, Tree
 from textual.widgets.tree import TreeNode
@@ -82,7 +83,9 @@ class HostListScreen(Screen):
 
     def compose(self) -> ComposeResult:
         yield Header()
-        yield Static(BANNER_TEXT, id="banner")
+        with Horizontal(id="banner-row"):
+            yield Static(BANNER_TEXT, id="banner")
+            yield Static("", id="banner-stats")
         yield Input(
             placeholder="Search (alias, hostname, user, port; or extra:yes/no)...",
             id="search-input",
@@ -124,6 +127,7 @@ class HostListScreen(Screen):
         self._alias_nodes = {}
         group_tree = _build_group_tree(aliases)
         self._render_group(group_tree, tree.root)
+        self._update_banner_stats()
 
     def _render_group(self, group: "_GroupNode", tree_node: TreeNode) -> None:
         for name in sorted(group.children):
@@ -193,6 +197,19 @@ class HostListScreen(Screen):
             + "  Extra"
         )
         self.query_one("#column-header", Static).update(header)
+
+    def _update_banner_stats(self) -> None:
+        total = len(self._alias_nodes)
+        up = sum(1 for a in self._alias_nodes if self._status.get(a) == "up")
+        down = sum(1 for a in self._alias_nodes if self._status.get(a) == "down")
+        checking = total - up - down
+        lines = [f"{total} host{'s' if total != 1 else ''}"]
+        if total:
+            lines.append(f"[{STATUS_COLOR['up']}]{up}[/] up")
+            lines.append(f"[{STATUS_COLOR['down']}]{down}[/] down")
+            if checking:
+                lines.append(f"[{STATUS_COLOR['unknown']}]{checking}[/] checking")
+        self.query_one("#banner-stats", Static).update("\n".join(lines))
 
     def _row_label(
         self, alias: str, display_name: str, params: dict, status: str
@@ -410,6 +427,7 @@ class HostListScreen(Screen):
             node = self._alias_nodes[alias]
             display_name = config.alias_segments(alias)[-1]
             node.set_label(self._row_label(alias, display_name, params, "unknown"))
+        self._update_banner_stats()
         async for alias, ok in reachability.check_all(targets):
             self._status[alias] = "up" if ok else "down"
             node = self._alias_nodes.get(alias)
@@ -419,3 +437,4 @@ class HostListScreen(Screen):
                 node.set_label(
                     self._row_label(alias, display_name, params, self._status[alias])
                 )
+            self._update_banner_stats()

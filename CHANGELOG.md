@@ -9,6 +9,14 @@ minor releases.
 
 ## [Unreleased]
 
+### Added
+
+- Live host-count/reachability summary next to the ASCII banner, using
+  the horizontal space that was previously empty beside the centered
+  art. Shows total hosts, up/down counts, and a "checking" count while
+  reachability results are still coming in; narrows to match whenever
+  the search filter is active.
+
 ## [0.4.0] - 2026-08-15
 
 ### Added

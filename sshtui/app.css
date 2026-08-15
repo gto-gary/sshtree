@@ -2,14 +2,27 @@ HostEditScreen, ConfirmScreen, ScpScreen, FilePickerScreen {
     align: center middle;
 }
 
+#banner-row {
+    height: auto;
+    margin-top: 1;
+}
+
 #banner {
-    width: 100%;
+    width: 1fr;
     height: auto;
     content-align: center middle;
     text-align: center;
     color: $primary;
     background: transparent;
-    margin-top: 1;
+}
+
+#banner-stats {
+    width: 1fr;
+    height: auto;
+    content-align: center middle;
+    text-align: left;
+    color: $secondary;
+    background: transparent;
 }
 
 #edit-dialog, #confirm-dialog, #scp-dialog {
