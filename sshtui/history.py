@@ -5,11 +5,13 @@ but kept as a record in case that's wanted again later."""
 
 from __future__ import annotations
 
+import os
 import json
 import time
 from pathlib import Path
 
-HISTORY_PATH = Path.home() / ".config" / "sshtui" / "history.json"
+CONFIG_HOME = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
+HISTORY_PATH = CONFIG_HOME / "sshtui" / "history.json"
 
 
 def _load() -> dict[str, dict]:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import shutil
 import time
@@ -10,7 +11,8 @@ from pathlib import Path
 from sshconf import SshConfigFile, empty_ssh_config_file
 
 CONFIG_PATH = Path.home() / ".ssh" / "config"
-BACKUP_DIR = Path.home() / ".config" / "sshtui" / "backups"
+CONFIG_HOME = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
+BACKUP_DIR = CONFIG_HOME / "sshtui" / "backups"
 
 # Fields shown as dedicated inputs in the edit form; everything else in a
 # host's params is treated as a generic key/value row.
@@ -19,6 +21,16 @@ CORE_FIELDS = ("hostname", "user", "port")
 _backed_up = False
 
 _EQUALS_DIRECTIVE_RE = re.compile(r"^([A-Za-z][A-Za-z0-9]*)=(.*)$")
+
+
+def backup_config() -> None:
+    """Backup ~/.ssh/config once per process."""
+    global _backed_up
+    if not _backed_up and CONFIG_PATH.exists():
+        BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+        stamp = time.strftime("%Y%m%dT%H%M%S")
+        shutil.copy2(CONFIG_PATH, BACKUP_DIR / f"config-{stamp}")
+        _backed_up = True
 
 
 def _normalize_equals_syntax(lines: list[str]) -> list[str]:
@@ -108,12 +120,7 @@ def alias_segments(alias: str) -> list[str]:
 
 def save(conf: SshConfigFile) -> None:
     """Backup ~/.ssh/config once per process, then write changes."""
-    global _backed_up
-    if not _backed_up and CONFIG_PATH.exists():
-        BACKUP_DIR.mkdir(parents=True, exist_ok=True)
-        stamp = time.strftime("%Y%m%dT%H%M%S")
-        shutil.copy2(CONFIG_PATH, BACKUP_DIR / f"config-{stamp}")
-        _backed_up = True
+    backup_config()
     CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     conf.write(str(CONFIG_PATH))
 

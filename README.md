@@ -90,7 +90,7 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
 
 
 - **Automatic backup** — before the first write in any run, the current
-  `~/.ssh/config` is snapshotted to `~/.config/sshtui/backups/`.
+  `~/.ssh/config` is snapshotted to `$XDG_CONFIG_HOME/sshtui/backups/` (defaults to `~/.config/sshtui/backups/`).
 
 ## Requirements
 
@@ -276,8 +276,8 @@ sshtui/
 | Path | Purpose |
 |---|---|
 | `~/.ssh/config` | The source of truth. Read on every screen refresh, written on every save. |
-| `~/.config/sshtui/history.json` | `{alias: {count, last_used}}` — drives the recent/frequent sort. |
-| `~/.config/sshtui/backups/config-<timestamp>` | Snapshot of `~/.ssh/config` taken before the first write each run. |
+| `$XDG_CONFIG_HOME/sshtui/history.json` | `{alias: {count, last_used}}` — drives recent/frequent host tracking (defaults to `~/.config/sshtui/history.json`). |
+| `$XDG_CONFIG_HOME/sshtui/backups/config-<timestamp>` | Snapshot of `~/.ssh/config` taken before the first write each run (defaults to `~/.config/sshtui/backups/`). |
 
 ## Known limitations
 
