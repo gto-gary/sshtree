@@ -14,15 +14,16 @@ minor releases.
 - Copy a file to/from the selected host via `scp` (`s`): prompts for a
   local path and remote path, then upload or download. Same
   clean-exit-then-exec pattern as connecting - `scp`'s progress bar and
-  any password prompt behave like typing the command yourself.
-- Unavailable when running through the shell-integration wrapper
-  (`--print-only` mode): its stdout capture is designed for the
-  reconnect trick, not scp's interactive output - exec'ing scp there
-  would silently swallow its progress, and the wrapper would then try
-  to `ssh` into whatever scp happened to print, since it can't tell an
-  scp action apart from a connect alias. Confirmed this failure mode
-  live before adding the guard. Blocked with a clear warning instead;
-  `command sshtui` bypasses the wrapper for this.
+  any password prompt behave like typing the command yourself. Works
+  the same directly or through the shell-integration wrapper.
+- `--print-only` mode reworked to print the chosen action as plain
+  lines (`connect <alias>`, or `scp <upload|download> <alias> <local>
+  <remote>`) instead of just an alias, so the wrapper can run either
+  `ssh` or `scp` afterward and inject the right command into shell
+  history for either. The real command always runs after the picker's
+  own output has been fully captured and consumed, so it gets a normal
+  terminal either way - confirmed `scp`'s progress bar reaches the real
+  terminal correctly through the wrapper, not just when run directly.
 
 ## [0.3.0] - 2026-08-13
 

@@ -17,10 +17,6 @@ class SshTuiApp(App["ConnectAction | ScpAction"]):
     CSS_PATH = "app.css"
     TITLE = "sshtui"
 
-    def __init__(self, print_only: bool = False) -> None:
-        super().__init__()
-        self.print_only = print_only
-
     def on_mount(self) -> None:
         self.push_screen(HostListScreen())
 
@@ -31,12 +27,11 @@ def run() -> None:
         "--print-only",
         action="store_true",
         help=(
-            "Print the selected host's alias instead of connecting "
-            "directly. For wrapping in a shell function that runs ssh "
-            "itself, so the command shows up in shell history - see "
-            "README for the reconnect-with-up-arrow setup. Copying a "
-            "file (scp) is unavailable in this mode - its progress "
-            "output would be captured by the wrapper, not shown."
+            "Print the chosen action as lines instead of running it "
+            "directly, for a wrapping shell function to run itself "
+            "afterward (once its own $(...) capture has completed, so "
+            "the real command gets a normal terminal) - see README for "
+            "the reconnect-with-up-arrow setup."
         ),
     )
     args = parser.parse_args()
@@ -44,14 +39,16 @@ def run() -> None:
     # App.run() blocks until the app exits and the terminal is fully
     # restored, then returns whatever was passed to Screen.exit(...).
     # Only then is it safe to exec ssh/scp into the same terminal.
-    result = SshTuiApp(print_only=args.print_only).run()
+    result = SshTuiApp().run()
     if result is None:
         return
 
+    if args.print_only:
+        for line in result.print_only_lines():
+            print(line)
+        return
+
     if isinstance(result, ConnectAction):
-        if args.print_only:
-            print(result.alias)
-            return
         try:
             os.execvp("ssh", ["ssh", result.alias])
         except FileNotFoundError:

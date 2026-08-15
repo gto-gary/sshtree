@@ -34,10 +34,9 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
   - Prompts for a local path and remote path, then upload or download —
     same clean-exit-then-exec pattern as connecting, so `scp`'s progress
     bar and any password prompt behave exactly like typing the command
-    yourself.
-  - Not available when running through the shell-integration wrapper
-    (its stdout capture is designed for the reconnect trick, not for
-    scp's interactive output) — use `command sshtui` directly for this.
+    yourself. Works the same whether run directly or through the
+    shell-integration wrapper (below) — the up arrow recalls the `scp`
+    command afterward too, same as it does for `ssh`.
 
 - **Live reachability check**
   - Status dot per row: 🟢 up, 🔴 down/unreachable, ⚪ checking.
@@ -163,14 +162,15 @@ installed.
 
 ### Reconnecting with the up arrow
 
-By default, `sshtui` connects by exec'ing `ssh <alias>` directly, which
-means your shell only ever sees "ran `sshtui`" in its history - not the
-actual `ssh` command - so pressing the up arrow after a session ends (from
-quitting, an idle timeout, or a dropped connection) just recalls `sshtui`
-again, reopening the picker.
+By default, `sshtui` connects (or copies a file) by exec'ing `ssh`/`scp`
+directly, which means your shell only ever sees "ran `sshtui`" in its
+history - not the actual command - so pressing the up arrow afterward (from
+quitting, an idle timeout, a dropped connection, or a finished file copy)
+just recalls `sshtui` again, reopening the picker.
 
-To make the up arrow recall `ssh <alias>` instead - so you can reconnect
-directly without going back through the picker - set up the shell function:
+To make the up arrow recall the real `ssh`/`scp` command instead - so you
+can reconnect or retry directly without going back through the picker -
+set up the shell function:
 
 1. Add this line to your shell rc file, adjusting the path to wherever
    you cloned this repo:
@@ -182,23 +182,20 @@ directly without going back through the picker - set up the shell function:
 
 2. Reload it - `source ~/.zshrc`, or just open a new terminal.
 
-This defines a `sshtui` shell function that shadows the installed command:
-it runs the picker in `--print-only` mode (which prints the chosen alias
-instead of connecting directly), injects `ssh <alias>` into your shell's
-history, then connects. The function falls through to nothing on quit
-without selecting a host. Use `command sshtui` if you ever need to bypass
-the function and reach the plain installed command directly.
+This defines a `sshtui` shell function that shadows the installed command.
+It runs the picker in `--print-only` mode, which prints what you chose as
+plain lines instead of running anything directly; the function reads that,
+injects the equivalent `ssh`/`scp` command into your shell's history, then
+runs the real command itself. Because that real command runs *after* the
+picker's own output has already been captured and consumed, it gets a
+normal terminal - `scp`'s progress bar and any password prompt work
+exactly as if you'd typed the command by hand. The function falls through
+to nothing on quit without selecting a host. Use `command sshtui` if you
+ever need to bypass the function and reach the plain installed command
+directly.
 
 No reinstall is needed for this - it's a plain shell rc change, unrelated
 to how `sshtui` itself is installed.
-
-Because this mode captures the picker's output to build the `ssh`
-command, copying a file (`s`) is disabled while running through the
-wrapper - `scp`'s progress bar and any prompts would be captured too
-instead of reaching your terminal, and the wrapper wouldn't know to skip
-its own `ssh` step afterward. Selecting `s` under the wrapper shows a
-warning instead of proceeding; use `command sshtui` directly to copy
-files.
 
 ### Searching
 

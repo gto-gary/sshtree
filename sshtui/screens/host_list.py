@@ -352,20 +352,6 @@ class HostListScreen(Screen):
         alias = self.selected_alias()
         if alias is None:
             return
-        # --print-only mode runs inside a shell function's $(...) capture
-        # (for the up-arrow reconnect trick) - scp exec'd there would have
-        # its progress/prompts silently swallowed by that capture instead
-        # of reaching the real terminal, and the wrapper would then try
-        # to ssh into whatever scp happened to print. Block it here
-        # rather than leave that broken.
-        if self.app.print_only:
-            self.notify(
-                "Copying files isn't available via the shell-integration "
-                "wrapper. Run 'command sshtui' directly for this.",
-                severity="warning",
-                timeout=6,
-            )
-            return
         result = await self.app.push_screen_wait(ScpScreen(alias))
         if result is None:
             return
