@@ -3,24 +3,26 @@ HostEditScreen, ConfirmScreen, ScpScreen, FilePickerScreen {
 }
 
 #banner-row {
-    height: auto;
-    margin-top: 1;
+    height: 1;
+    margin-top: 0;
+    padding: 0 1;
 }
 
 #banner {
     width: 1fr;
-    height: auto;
-    content-align: center middle;
-    text-align: center;
+    height: 1;
+    content-align: left middle;
+    text-align: left;
+    text-style: bold;
     color: $primary;
     background: transparent;
 }
 
 #banner-stats {
     width: 1fr;
-    height: auto;
-    content-align: center middle;
-    text-align: left;
+    height: 1;
+    content-align: right middle;
+    text-align: right;
     color: $secondary;
     background: transparent;
 }

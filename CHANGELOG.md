@@ -9,13 +9,27 @@ minor releases.
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-08-15
+
 ### Added
 
-- Live host-count/reachability summary next to the ASCII banner, using
-  the horizontal space that was previously empty beside the centered
-  art. Shows total hosts, up/down counts, and a "checking" count while
-  reachability results are still coming in; narrows to match whenever
-  the search filter is active.
+- Live host-count/reachability summary in the header row, right-aligned
+  opposite the banner. Shows total hosts, up/down counts, and a
+  "checking" count while reachability results are still coming in;
+  narrows to match whenever the search filter is active.
+- Search filter gained `status:down` / `status:up` / `status:unknown`
+  syntax (with `unreachable`/`reachable`/`checking` as synonyms) to
+  filter the host list to a specific reachability state, mirroring the
+  existing `extra:yes`/`extra:no` exact-match pattern.
+
+### Changed
+
+- Replaced the multi-line ASCII banner with a single-line bold wordmark
+  (🔑 `sshtui` + dimmed version), freeing up the ~5 rows of vertical
+  space the art used to take. The reachability summary sits right-
+  aligned on the same row instead of stacking underneath it, and the
+  row gets a 1-column padding on each edge so neither the wordmark nor
+  the stats run flush to the terminal border.
 
 ## [0.4.0] - 2026-08-15
 

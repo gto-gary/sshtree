@@ -22,25 +22,15 @@ from .scp import ScpScreen
 STATUS_ICON = {"unknown": "○", "up": "●", "down": "●"}
 STATUS_COLOR = {"unknown": "grey50", "up": "green", "down": "red"}
 
-BANNER_ART = (
-    r"         _     _         _ " "\n"
-    r" ___ ___| |__ | |_ _   _(_)" "\n"
-    r"/ __/ __| '_ \| __| | | | |" "\n"
-    r"\__ \__ \ | | | |_| |_| | |" "\n"
-    r"|___/___/_| |_|\__|\__,_|_|"
-)
-_BANNER_WIDTH = max(len(line) for line in BANNER_ART.splitlines())
 
-
-def _version_line() -> str:
+def _version_str() -> str:
     try:
-        v = f"v{_pkg_version('sshtui')}"
+        return f"v{_pkg_version('sshtui')}"
     except PackageNotFoundError:
-        v = "(dev)"
-    return v.center(_BANNER_WIDTH)
+        return "(dev)"
 
 
-BANNER_TEXT = f"{BANNER_ART}\n{_version_line()}"
+BANNER_TEXT = f"\U0001f511 sshtui [dim]{_version_str()}[/]"
 
 
 class _GroupNode:
@@ -87,7 +77,7 @@ class HostListScreen(Screen):
             yield Static(BANNER_TEXT, id="banner")
             yield Static("", id="banner-stats")
         yield Input(
-            placeholder="Search (alias, hostname, user, port; or extra:yes/no)...",
+            placeholder="Search (alias, hostname, user, port; or extra:yes/no, status:down)...",
             id="search-input",
         )
         yield Static("", id="column-header")
@@ -153,6 +143,16 @@ class HostListScreen(Screen):
             if want in ("no", "n", "false"):
                 return not has_extra
             return False
+        if text.startswith("status:"):
+            status = self._status.get(alias, "unknown")
+            want = text.split(":", 1)[1].strip()
+            if want in ("down", "unreachable"):
+                return status == "down"
+            if want in ("up", "reachable"):
+                return status == "up"
+            if want in ("unknown", "checking"):
+                return status == "unknown"
+            return False
         port = config.flatten_value(params.get("port", "22"))
         haystack = " ".join(
             [
@@ -203,13 +203,13 @@ class HostListScreen(Screen):
         up = sum(1 for a in self._alias_nodes if self._status.get(a) == "up")
         down = sum(1 for a in self._alias_nodes if self._status.get(a) == "down")
         checking = total - up - down
-        lines = [f"{total} host{'s' if total != 1 else ''}"]
+        parts = [f"{total} host{'s' if total != 1 else ''}"]
         if total:
-            lines.append(f"[{STATUS_COLOR['up']}]{up}[/] up")
-            lines.append(f"[{STATUS_COLOR['down']}]{down}[/] down")
+            parts.append(f"[{STATUS_COLOR['up']}]{up}[/] up")
+            parts.append(f"[{STATUS_COLOR['down']}]{down}[/] down")
             if checking:
-                lines.append(f"[{STATUS_COLOR['unknown']}]{checking}[/] checking")
-        self.query_one("#banner-stats", Static).update("\n".join(lines))
+                parts.append(f"[{STATUS_COLOR['unknown']}]{checking}[/] checking")
+        self.query_one("#banner-stats", Static).update(" · ".join(parts))
 
     def _row_label(
         self, alias: str, display_name: str, params: dict, status: str

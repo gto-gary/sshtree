@@ -60,6 +60,9 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
   - Matches alias, hostname, user, and port as you type.
   - `extra:yes` / `extra:no` — exact filter on whether a host has
     directives beyond Hostname/User/Port.
+  - `status:down` / `status:up` / `status:unknown` — exact filter on the
+    current reachability dot (`unreachable`/`reachable`/`checking` also
+    work as aliases).
   - Re-renders from the already-loaded config, not a fresh disk read per
     keystroke — stays responsive with hundreds of hosts.
   - `Escape` clears the filter and returns focus to the list.
@@ -224,6 +227,13 @@ Typing `extra:yes` filters to only hosts with directives beyond
 Hostname/User/Port (the `Extra` column); `extra:no` filters to hosts
 without any. This is an exact flag match rather than a substring search,
 since "has extra params" is a yes/no property, not text to search within.
+
+Typing `status:down` filters to only hosts currently showing the red
+"unreachable" dot; `status:up` for green/reachable, `status:unknown` for
+ones whose check hasn't resolved yet (also accepts `unreachable`,
+`reachable`, and `checking` as more readable synonyms). Same exact-match
+reasoning as `extra:` - reachability is a small fixed set of states, not
+free text.
 
 Group headers (`net`, `srv`, `lab`, `other`) can be expanded/collapsed with
 `Enter` or `Space` while highlighted.
