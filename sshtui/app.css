@@ -77,7 +77,7 @@ HostEditScreen, ConfirmScreen, ScpScreen, FilePickerScreen {
 }
 
 #picker-tree {
-    height: 1fr;
+    height: 20;
     border: round $secondary;
 }
 

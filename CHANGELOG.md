@@ -49,6 +49,19 @@ minor releases.
   was fixed, until the next validation attempt - misleadingly implying
   a now-valid path was still wrong. Both now clear their error the
   moment the relevant field changes.
+- The `VerticalScroll` fix above introduced its own regression:
+  `#picker-tree`'s `height: 1fr` meant something different once nested
+  inside a scrolling container (which sizes to content, not "remaining
+  space") than it did as a direct child of a fixed-size dialog - the
+  tree collapsed to a near-useless 2 rows tall at *any* terminal size,
+  including a normal 80x24, and at small heights that sliver fell
+  outside the visible viewport entirely. Fixed by giving the tree an
+  explicit height (20 rows) instead, so it's consistently usable and
+  the surrounding `VerticalScroll` handles genuinely-too-small
+  terminals by actually scrolling, rather than squeezing the tree into
+  uselessness. Verified across a size matrix (80x24 down to 80x8) that
+  the tree keeps its full height and the scroll container reports
+  real, positive `max_scroll_y` when content doesn't fit.
 
 ## [0.3.0] - 2026-08-13
 
