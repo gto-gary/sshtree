@@ -9,6 +9,10 @@ minor releases.
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed terminal size detection in terminal emulators without in-band resize escape query support (such as macOS Terminal.app and GNOME Terminal). When run via the shell wrapper (`output=$(command sshtui --print-only)`), `sys.stdout` is a pipe, causing standard size queries to fail and fall back to 80x24 in the top-left corner. `sshtui` now fallback-inspects `sys.stderr`, `sys.stdin`, and `/dev/tty` so the UI opens across the full terminal window.
+
 ## [0.4.1] - 2026-08-15
 
 ### Added

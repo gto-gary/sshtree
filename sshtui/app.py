@@ -5,12 +5,51 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+import shutil
 from pathlib import Path
 
 from textual.app import App
 
 from .actions import ConnectAction, ScpAction, SftpAction
 from .screens.host_list import HostListScreen
+
+
+def _ensure_valid_terminal_size() -> None:
+    """Ensure Textual gets the true terminal size even when stdout is captured
+    by a shell wrapper subshell like `output=$(command sshtui --print-only)`.
+
+    Python's `shutil.get_terminal_size()` only checks `sys.__stdout__`, which
+    raises OSError when stdout is a pipe, causing it to fall back to (80, 24).
+    Terminals like macOS Terminal.app and GNOME Terminal don't support in-band
+    resize queries, staying stuck at 80x24 in the top-left corner.
+    """
+    orig_get_terminal_size = shutil.get_terminal_size
+
+    def smart_get_terminal_size(fallback: tuple[int, int] = (80, 24)) -> os.terminal_size:
+        try:
+            cols = int(os.environ.get("COLUMNS", 0))
+            lines = int(os.environ.get("LINES", 0))
+            if cols > 0 and lines > 0:
+                return os.terminal_size((cols, lines))
+        except (ValueError, TypeError):
+            pass
+
+        for stream in (sys.stdout, sys.stderr, sys.stdin):
+            if stream is not None:
+                try:
+                    return os.get_terminal_size(stream.fileno())
+                except (AttributeError, ValueError, OSError):
+                    pass
+
+        try:
+            with open("/dev/tty") as tty:
+                return os.get_terminal_size(tty.fileno())
+        except (AttributeError, ValueError, OSError):
+            pass
+
+        return orig_get_terminal_size(fallback)
+
+    shutil.get_terminal_size = smart_get_terminal_size
 
 
 class SshTuiApp(App["ConnectAction | SftpAction | ScpAction"]):
@@ -22,6 +61,7 @@ class SshTuiApp(App["ConnectAction | SftpAction | ScpAction"]):
 
 
 def run() -> None:
+    _ensure_valid_terminal_size()
     parser = argparse.ArgumentParser(prog="sshtui")
     parser.add_argument(
         "--print-only",
