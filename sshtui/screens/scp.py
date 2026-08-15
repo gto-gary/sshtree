@@ -10,6 +10,7 @@ from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Label, Static
 
 from ..actions import ScpAction
+from .file_picker import FilePickerScreen
 
 
 class ScpScreen(ModalScreen[ScpAction | None]):
@@ -21,7 +22,9 @@ class ScpScreen(ModalScreen[ScpAction | None]):
         with Vertical(id="scp-dialog"):
             yield Static(f"Copy file: {self.alias}", id="scp-title")
             yield Label("Local path")
-            yield Input(placeholder="/local/path/to/file", id="scp-local")
+            with Horizontal(id="scp-local-row"):
+                yield Input(placeholder="/local/path/to/file", id="scp-local")
+                yield Button("Browse...", id="browse")
             yield Label("Remote path")
             yield Input(placeholder="/remote/path/to/file", id="scp-remote")
             yield Static("", id="scp-error")
@@ -33,9 +36,32 @@ class ScpScreen(ModalScreen[ScpAction | None]):
     def _show_error(self, message: str) -> None:
         self.query_one("#scp-error", Static).update(message)
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
+    @staticmethod
+    def _start_dir_for_picker(current_value: str) -> str | None:
+        """DirectoryTree needs a directory to root at. The local field
+        might already hold a full file path (typed by hand or from an
+        earlier browse) rather than a directory, so fall back to its
+        parent; fall back further to the default (None -> $HOME in
+        FilePickerScreen) if nothing usable is there."""
+        if not current_value:
+            return None
+        path = Path(current_value).expanduser()
+        if path.is_dir():
+            return str(path)
+        if path.parent.is_dir():
+            return str(path.parent)
+        return None
+
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "cancel":
             self.dismiss(None)
+            return
+        if event.button.id == "browse":
+            local_input = self.query_one("#scp-local", Input)
+            start = self._start_dir_for_picker(local_input.value.strip())
+            picked = await self.app.push_screen_wait(FilePickerScreen(start))
+            if picked is not None:
+                local_input.value = picked
             return
         if event.button.id not in ("upload", "download"):
             return

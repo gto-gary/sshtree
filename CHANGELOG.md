@@ -18,6 +18,12 @@ minor releases.
   clean-exit-then-exec pattern as connecting - `scp`'s progress bar and
   any password prompt behave like typing the command yourself. Works
   the same directly or through the shell-integration wrapper.
+- Local file/folder picker (**Browse...**) for the scp local path field,
+  so the local side doesn't require typing a path by hand: navigate a
+  `DirectoryTree` starting at `$HOME`, select a file directly, or use
+  **Use this folder** to pick the currently-navigated directory (for a
+  download destination). A jump-to-path field handles going *up*, since
+  `DirectoryTree` can only navigate down from its starting root.
 - `--print-only` mode reworked to print the chosen action as plain
   lines (`connect <alias>`, `sftp <alias>`, or `scp <upload|download>
   <alias> <local> <remote>`) instead of just an alias, so the wrapper

@@ -1,4 +1,4 @@
-HostEditScreen, ConfirmScreen, ScpScreen {
+HostEditScreen, ConfirmScreen, ScpScreen, FilePickerScreen {
     align: center middle;
 }
 
@@ -32,7 +32,7 @@ HostEditScreen, ConfirmScreen, ScpScreen {
     margin-bottom: 1;
 }
 
-#alias-error, #scp-error {
+#alias-error, #scp-error, #picker-error {
     color: $error;
     height: auto;
     margin-bottom: 1;
@@ -41,6 +41,54 @@ HostEditScreen, ConfirmScreen, ScpScreen {
 #scp-title {
     text-style: bold;
     margin-bottom: 1;
+}
+
+#scp-local-row {
+    height: 3;
+}
+
+#scp-local-row Input {
+    width: 1fr;
+}
+
+#picker-dialog {
+    background: $panel;
+    border: round $primary;
+    padding: 1 2;
+    width: 80%;
+    max-width: 100;
+    height: auto;
+    max-height: 90%;
+    margin: 2 4;
+}
+
+#picker-title {
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+#picker-jump {
+    height: 3;
+    margin-bottom: 1;
+}
+
+#picker-jump Input {
+    width: 1fr;
+}
+
+#picker-tree {
+    height: 1fr;
+    border: round $secondary;
+}
+
+#picker-buttons {
+    height: auto;
+    margin-top: 1;
+    align: right middle;
+}
+
+#picker-buttons Button {
+    margin-left: 1;
 }
 
 #kv-rows {

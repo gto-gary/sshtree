@@ -42,6 +42,13 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
     yourself. Works the same whether run directly or through the
     shell-integration wrapper (below) — the up arrow recalls the `scp`
     command afterward too, same as it does for `ssh`.
+  - **Browse...** next to the local path field opens a local file/folder
+    picker (starting at your home directory) instead of typing the full
+    path by hand. Select a file directly, or navigate into a folder and
+    use **Use this folder** to pick it as the target (useful as a
+    download destination). A path field at the top lets you jump
+    straight to any directory, since the browser can only navigate
+    downward from wherever it started.
 
 - **Live reachability check**
   - Status dot per row: 🟢 up, 🔴 down/unreachable, ⚪ checking.
