@@ -15,6 +15,7 @@ minor releases.
 
 - Fixed terminal size detection in terminal emulators without in-band resize escape query support (such as macOS Terminal.app and GNOME Terminal). When run via the shell wrapper (`output=$(command sshtui --print-only)`), `sys.stdout` is a pipe, causing standard size queries to fail and fall back to 80x24 in the top-left corner. `sshtui` now fallback-inspects `sys.stderr`, `sys.stdin`, and `/dev/tty` so the UI opens across the full terminal window.
 - Added support for `$XDG_CONFIG_HOME` environment variable when resolving config backup (`$XDG_CONFIG_HOME/sshtui/backups/`) and history paths (defaulting to `~/.config/sshtui/`).
+- Fixed column header (`#column-header`) text wrapping when shrinking terminal window width by forcing single-line height (`height: 1`) and disabling line wrap (`text-wrap: nowrap`). Synchronized header horizontal scroll offset (`styles.offset`) with host tree horizontal scrolling (`scroll_x`).
 
 ## [0.4.1] - 2026-08-15
 

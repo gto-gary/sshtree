@@ -57,6 +57,18 @@ def _build_group_tree(aliases: list[str]) -> _GroupNode:
     return root
 
 
+class HostTree(Tree):
+    """Tree widget that syncs its horizontal scroll position with #column-header."""
+
+    def watch_scroll_x(self, old_value: float, new_value: float) -> None:
+        super().watch_scroll_x(old_value, new_value)
+        try:
+            header = self.screen.query_one("#column-header", Static)
+            header.styles.offset = (-int(new_value), 0)
+        except Exception:
+            pass
+
+
 class HostListScreen(Screen):
     BINDINGS = [
         Binding("a", "add_host", "Add"),
@@ -81,7 +93,7 @@ class HostListScreen(Screen):
             id="search-input",
         )
         yield Static("", id="column-header")
-        yield Tree("Hosts", id="host-tree")
+        yield HostTree("Hosts", id="host-tree")
         yield Footer()
 
     def on_mount(self) -> None:
@@ -196,7 +208,10 @@ class HostListScreen(Screen):
             + "User".ljust(w["user"])
             + "  Extra"
         )
-        self.query_one("#column-header", Static).update(header)
+        col_header = self.query_one("#column-header", Static)
+        col_header.update(header)
+        tree = self.query_one("#host-tree", Tree)
+        col_header.styles.offset = (-int(tree.scroll_x), 0)
 
     def _update_banner_stats(self) -> None:
         total = len(self._alias_nodes)

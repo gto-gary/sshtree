@@ -27,6 +27,13 @@ HostEditScreen, ConfirmScreen, ScpScreen, FilePickerScreen {
     background: transparent;
 }
 
+#column-header {
+    height: 1;
+    width: auto;
+    min-width: 100%;
+    text-wrap: nowrap;
+}
+
 #edit-dialog, #confirm-dialog, #scp-dialog {
     background: $panel;
     border: round $primary;
