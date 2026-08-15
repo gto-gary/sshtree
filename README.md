@@ -30,6 +30,15 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
     arrow recall `ssh <alias>` after the session ends, so you can
     reconnect directly without reopening the picker.
 
+- **Copy a file with `s`**
+  - Prompts for a local path and remote path, then upload or download —
+    same clean-exit-then-exec pattern as connecting, so `scp`'s progress
+    bar and any password prompt behave exactly like typing the command
+    yourself.
+  - Not available when running through the shell-integration wrapper
+    (its stdout capture is designed for the reconnect trick, not for
+    scp's interactive output) — use `command sshtui` directly for this.
+
 - **Live reachability check**
   - Status dot per row: 🟢 up, 🔴 down/unreachable, ⚪ checking.
   - Background TCP connect check against the host's port (default `22`,
@@ -145,6 +154,7 @@ installed.
 | `a` | Add a new host |
 | `e` | Edit the selected host |
 | `c` | Clone the selected host into a new one |
+| `s` | Copy a file to/from the selected host via `scp` |
 | `d` | Delete the selected host (asks for confirmation) |
 | `r` | Refresh reachability checks for all hosts |
 | `/` | Focus the search box |
@@ -181,6 +191,14 @@ the function and reach the plain installed command directly.
 
 No reinstall is needed for this - it's a plain shell rc change, unrelated
 to how `sshtui` itself is installed.
+
+Because this mode captures the picker's output to build the `ssh`
+command, copying a file (`s`) is disabled while running through the
+wrapper - `scp`'s progress bar and any prompts would be captured too
+instead of reaching your terminal, and the wrapper wouldn't know to skip
+its own `ssh` step afterward. Selecting `s` under the wrapper shows a
+warning instead of proceeding; use `command sshtui` directly to copy
+files.
 
 ### Searching
 

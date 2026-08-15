@@ -13,8 +13,10 @@ from textual.widgets import Footer, Header, Input, Static, Tree
 from textual.widgets.tree import TreeNode
 
 from .. import config, history, reachability
+from ..actions import ConnectAction, ScpAction
 from .confirm import ConfirmScreen
 from .host_edit import HostEditScreen
+from .scp import ScpScreen
 
 STATUS_ICON = {"unknown": "○", "up": "●", "down": "●"}
 STATUS_COLOR = {"unknown": "grey50", "up": "green", "down": "red"}
@@ -69,6 +71,7 @@ class HostListScreen(Screen):
         Binding("a", "add_host", "Add"),
         Binding("e", "edit_host", "Edit"),
         Binding("c", "clone_host", "Clone"),
+        Binding("s", "scp_host", "Copy file"),
         Binding("d", "delete_host", "Delete"),
         Binding("r", "refresh_reachability", "Refresh"),
         Binding("slash", "focus_search", "Search", show=True),
@@ -257,11 +260,11 @@ class HostListScreen(Screen):
         if alias is None:
             return
         history.record_use(alias)
-        # Exit with the alias as the result; app.py execs ssh only after
+        # Exit with the action as the result; app.py execs ssh only after
         # Textual has fully torn down and restored the terminal, otherwise
         # ssh's password prompt renders into a still-raw/alt-screen terminal
         # and appears to hang.
-        self.app.exit(alias)
+        self.app.exit(ConnectAction(alias))
 
     def _taken_aliases(self) -> frozenset[str]:
         return frozenset(config.list_aliases(self.conf))
@@ -343,6 +346,34 @@ class HostListScreen(Screen):
         config.save(self.conf)
         self.rebuild_tree()
         self.check_reachability()
+
+    @work
+    async def action_scp_host(self) -> None:
+        alias = self.selected_alias()
+        if alias is None:
+            return
+        # --print-only mode runs inside a shell function's $(...) capture
+        # (for the up-arrow reconnect trick) - scp exec'd there would have
+        # its progress/prompts silently swallowed by that capture instead
+        # of reaching the real terminal, and the wrapper would then try
+        # to ssh into whatever scp happened to print. Block it here
+        # rather than leave that broken.
+        if self.app.print_only:
+            self.notify(
+                "Copying files isn't available via the shell-integration "
+                "wrapper. Run 'command sshtui' directly for this.",
+                severity="warning",
+                timeout=6,
+            )
+            return
+        result = await self.app.push_screen_wait(ScpScreen(alias))
+        if result is None:
+            return
+        history.record_use(alias)
+        # Same reasoning as connect: exit cleanly first, exec scp only
+        # after Textual has released the terminal, so its progress bar
+        # and any password/passphrase prompt behave normally.
+        self.app.exit(result)
 
     @work
     async def action_delete_host(self) -> None:

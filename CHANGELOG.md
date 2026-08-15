@@ -9,6 +9,21 @@ minor releases.
 
 ## [Unreleased]
 
+### Added
+
+- Copy a file to/from the selected host via `scp` (`s`): prompts for a
+  local path and remote path, then upload or download. Same
+  clean-exit-then-exec pattern as connecting - `scp`'s progress bar and
+  any password prompt behave like typing the command yourself.
+- Unavailable when running through the shell-integration wrapper
+  (`--print-only` mode): its stdout capture is designed for the
+  reconnect trick, not scp's interactive output - exec'ing scp there
+  would silently swallow its progress, and the wrapper would then try
+  to `ssh` into whatever scp happened to print, since it can't tell an
+  scp action apart from a connect alias. Confirmed this failure mode
+  live before adding the guard. Blocked with a clear warning instead;
+  `command sshtui` bypasses the wrapper for this.
+
 ## [0.3.0] - 2026-08-13
 
 ### Added
