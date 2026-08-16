@@ -130,6 +130,26 @@ effect immediately, no reinstall needed.
 Make sure `~/.local/bin` is on your `PATH` (most shells already have this;
 if not, add `export PATH="$HOME/.local/bin:$PATH"` to your shell rc file).
 
+### Alternative: install without cloning
+
+If you don't want a local clone of the repo first (e.g. setting up a new
+machine quickly), `uv tool install` can install directly from the GitLab
+repo over SSH, using the same SSH key access `git clone`/`git push` already
+rely on (the repo is private, so this only works for accounts with access):
+
+```sh
+uv tool install git+ssh://git@gitlab.com/gto_gary/sshtui.git
+```
+
+Unlike the `--editable` install above, this builds and installs a real
+wheel rather than linking against a source tree, so pulling new commits
+elsewhere won't update it automatically - reinstall with `--force` to pick
+up new changes:
+
+```sh
+uv tool install --force git+ssh://git@gitlab.com/gto_gary/sshtui.git
+```
+
 ### Verify
 
 ```sh
