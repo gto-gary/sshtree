@@ -11,86 +11,27 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
 
 ## Features
 
-- **Grouped, tabular host list**
-  - Each `--` in a host's alias adds another level of nesting, so groups
-    automatically match however you've named your hosts:
-    - `net--examplerouter1` → group `net`, host `examplerouter1`
-    - `srv--nas--examplenas` → group `srv` > subgroup `nas`, host `examplenas`
-    - No `--` at all → falls into a single `other` group
-  - Columns: status, alias, Hostname, Port (shows `22` when unset), User,
-    and Extra (`Yes`/`No` for directives beyond Hostname/User/Port).
-  - Column widths auto-adjust to the longest visible value each render.
-  - Groups and the hosts within them are sorted alphabetically.
-
-- **Connect with `Enter`**
-  - Exits the TUI cleanly, then execs `ssh <alias>` in the same terminal —
-    same experience as typing the command yourself, including password
-    prompts.
-  - Optional shell integration (`shell/sshtui.zsh` / `.bash`) makes the up
-    arrow recall `ssh <alias>` after the session ends, so you can
-    reconnect directly without reopening the picker.
-
-- **Drop into `sftp` with `f`**
-  - Same clean-exit-then-exec pattern as connecting — exits the TUI, then
-    execs `sftp <alias>` into an interactive `sftp>` prompt in the same
-    terminal. Works through the shell-integration wrapper too.
-
-- **Copy a file with `s`**
-  - Prompts for a local path and remote path, then upload or download —
-    same clean-exit-then-exec pattern as connecting, so `scp`'s progress
-    bar and any password prompt behave exactly like typing the command
-    yourself. Works the same whether run directly or through the
-    shell-integration wrapper (below) — the up arrow recalls the `scp`
-    command afterward too, same as it does for `ssh`.
-  - **Browse...** next to the local path field opens a local file/folder
-    picker (starting at your home directory) instead of typing the full
-    path by hand. Select a file directly, or navigate into a folder and
-    use **Use this folder** to pick it as the target (useful as a
-    download destination). A path field at the top lets you jump
-    straight to any directory, since the browser can only navigate
-    downward from wherever it started.
-
-- **Live reachability check**
-  - Status dot per row: 🟢 up, 🔴 down/unreachable, ⚪ checking.
-  - Background TCP connect check against the host's port (default `22`,
-    or its configured `Port`).
-  - Runs on startup and on demand with `r`.
-
-- **Search / filter (`/`)**
-  - Matches alias, hostname, user, and port as you type.
-  - `extra:yes` / `extra:no` — exact filter on whether a host has
-    directives beyond Hostname/User/Port.
-  - `status:down` / `status:up` / `status:unknown` — exact filter on the
-    current reachability dot (`unreachable`/`reachable`/`checking` also
-    work as aliases).
-  - Re-renders from the already-loaded config, not a fresh disk read per
-    keystroke — stays responsive with hundreds of hosts.
-  - `Escape` clears the filter and returns focus to the list.
-
-- **Add / edit / delete / clone hosts**
-  - Form fields for `Hostname` / `User` / `Port`, plus repeatable rows for
-    any other `ssh_config` directive.
-  - Directive dropdown covers ~48 common options (`ProxyJump`,
-    `IdentityFile`, `KexAlgorithms`, `ServerAliveInterval`, etc.) with a
-    **Custom...** fallback for anything else.
-  - `c` clones the selected host, pre-filling a unique `<alias>-copy` name
-    you can rename before saving.
-  - Duplicate-alias saves are rejected inline rather than crashing or
-    silently overwriting.
-
-- **Non-intrusive edits**
-  - Powered by `sshconf` — comments, blank lines, and per-host formatting
-    quirks are preserved.
-  - Only fields that actually changed get rewritten, so editing one field
-    never silently reformats an untouched line.
-  - Directives that legitimately repeat (multiple `IdentityFile` entries
-    being the common case) get one row per value in the edit form, and
-    are written back as separate lines in the order shown — not
-    collapsed into one invalid comma-joined line.
-
-
-- **Automatic backup** — before the first write in any run, the current
-  `~/.ssh/config` is snapshotted to `$XDG_CONFIG_HOME/sshtui/backups/` (defaults to `~/.config/sshtui/backups/`).
+- **Grouped, tabular host list** — hosts nest by `--` in their alias
+  (`srv--nas--x` → group `srv` > subgroup `nas` > host `x`), sorted
+  alphabetically, with status/alias/Hostname/Port/User/Extra columns.
+- **Connect with `Enter`** — execs `ssh <alias>` in the same terminal, same
+  as typing it yourself; optional shell integration makes the up arrow
+  recall it afterward.
+- **Drop into `sftp` with `f`** — opens an interactive `sftp` prompt on the
+  selected host.
+- **Copy a file with `s`** — upload or download via `scp`, with a local
+  file/folder picker for the local path.
+- **Live reachability check** — background TCP status dot per host: 🟢 up,
+  🔴 down, ⚪ checking; refreshable on demand with `r`.
+- **Search / filter (`/`)** — live filtering by alias/hostname/user/port,
+  plus `extra:` and `status:` exact-match filters.
+- **Add / edit / delete / clone hosts** — form-based editing with a
+  dropdown of common `ssh_config` directives, or **Custom...** for
+  anything else.
+- **Non-intrusive edits** — powered by `sshconf`; comments, formatting,
+  and untouched fields are preserved on save.
+- **Automatic backup** — snapshots `~/.ssh/config` before the first write
+  in any run.
 
 ## Requirements
 
@@ -121,34 +62,12 @@ From this project directory:
 uv tool install --editable .
 ```
 
-This creates an isolated virtual environment (managed by `uv`, not by you),
-installs `textual` and `sshconf` into it, and links an `sshtui` command onto
-your `PATH` (`~/.local/bin/sshtui`). `--editable` means the installed command
-runs directly against this source tree — edits to the `sshtui/` package take
-effect immediately, no reinstall needed.
+This installs an isolated `sshtui` command onto your `PATH`
+(`~/.local/bin/sshtui`). `--editable` means it runs directly against this
+source tree, so edits take effect immediately with no reinstall needed.
 
-Make sure `~/.local/bin` is on your `PATH` (most shells already have this;
-if not, add `export PATH="$HOME/.local/bin:$PATH"` to your shell rc file).
-
-### Alternative: install without cloning
-
-If you don't want a local clone of the repo first (e.g. setting up a new
-machine quickly), `uv tool install` can install directly from the GitLab
-repo over SSH, using the same SSH key access `git clone`/`git push` already
-rely on (the repo is private, so this only works for accounts with access):
-
-```sh
-uv tool install git+ssh://git@gitlab.com/gto_gary/sshtui.git
-```
-
-Unlike the `--editable` install above, this builds and installs a real
-wheel rather than linking against a source tree, so pulling new commits
-elsewhere won't update it automatically - reinstall with `--force` to pick
-up new changes:
-
-```sh
-uv tool install --force git+ssh://git@gitlab.com/gto_gary/sshtui.git
-```
+Make sure `~/.local/bin` is on your `PATH` (add
+`export PATH="$HOME/.local/bin:$PATH"` to your shell rc file if not).
 
 ### Verify
 
@@ -200,40 +119,19 @@ visible - narrows to match when you filter with `/`.
 
 ### Reconnecting with the up arrow
 
-By default, `sshtui` connects, opens `sftp`, or copies a file by exec'ing
-`ssh`/`sftp`/`scp` directly, which means your shell only ever sees "ran
-`sshtui`" in its history - not the actual command - so pressing the up
-arrow afterward (from quitting, an idle timeout, a dropped connection, or
-a finished file copy) just recalls `sshtui` again, reopening the picker.
+Since `sshtui` execs `ssh`/`sftp`/`scp` directly, your shell history only
+ever shows "ran `sshtui`", so the up arrow just reopens the picker instead
+of recalling the actual command. To make it recall the real command
+instead, add this to your shell rc file (adjusting the path to wherever
+you cloned this repo) and reload your shell:
 
-To make the up arrow recall the real `ssh`/`scp` command instead - so you
-can reconnect or retry directly without going back through the picker -
-set up the shell function:
+```sh
+# ~/.zshrc (or ~/.bashrc, sourcing shell/sshtui.bash instead)
+source /path/to/sshtui/shell/sshtui.zsh
+```
 
-1. Add this line to your shell rc file, adjusting the path to wherever
-   you cloned this repo:
-
-   ```sh
-   # ~/.zshrc (or ~/.bashrc, sourcing shell/sshtui.bash instead)
-   source /path/to/sshtui/shell/sshtui.zsh
-   ```
-
-2. Reload it - `source ~/.zshrc`, or just open a new terminal.
-
-This defines a `sshtui` shell function that shadows the installed command.
-It runs the picker in `--print-only` mode, which prints what you chose as
-plain lines instead of running anything directly; the function reads that,
-injects the equivalent `ssh`/`scp` command into your shell's history, then
-runs the real command itself. Because that real command runs *after* the
-picker's own output has already been captured and consumed, it gets a
-normal terminal - `scp`'s progress bar and any password prompt work
-exactly as if you'd typed the command by hand. The function falls through
-to nothing on quit without selecting a host. Use `command sshtui` if you
-ever need to bypass the function and reach the plain installed command
-directly.
-
-No reinstall is needed for this - it's a plain shell rc change, unrelated
-to how `sshtui` itself is installed.
+Use `command sshtui` to bypass it if you ever need the plain installed
+command directly.
 
 ### Searching
 
