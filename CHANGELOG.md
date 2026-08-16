@@ -9,6 +9,12 @@ minor releases.
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-08-16
+
+### Added
+
+- Standalone single-file binaries (`sshtui-linux`, `sshtui-macos`) built with PyInstaller and published from tagged GitLab CI pipelines, so the app can be run without a Python installation.
+
 ## [0.4.2] - 2026-08-15
 
 ### Fixed
