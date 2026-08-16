@@ -13,6 +13,10 @@ build:linux:
     - uv sync --group dev
     - uv run pyinstaller sshtui.spec
     - mv dist/sshtui dist/sshtui-linux
+    - |
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+           --upload-file dist/sshtui-linux \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sshtui/${CI_COMMIT_TAG}/sshtui-linux"
   artifacts:
     paths:
       - dist/sshtui-linux
@@ -25,10 +29,7 @@ release:
   needs:
     - build:linux
   script:
-    - |
-      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file dist/sshtui-linux \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sshtui/${CI_COMMIT_TAG}/sshtui-linux"
+    - echo "Publishing release ${CI_COMMIT_TAG}"
   release:
     tag_name: ${CI_COMMIT_TAG}
     description: "sshtui ${CI_COMMIT_TAG}"
