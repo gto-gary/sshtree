@@ -99,6 +99,13 @@ Run `sshtui` from any shell. The banner at the top shows the app name and
 version, plus a live host count and reachability breakdown
 (up/down/checking) that narrows to match your search filter.
 
+By default it reads and writes `~/.ssh/config`; use `--config` to point it
+at a different file instead:
+
+```sh
+sshtui --config ~/.ssh/config.work
+```
+
 | Key | Action |
 |---|---|
 | `↑` / `↓` | Move selection |
@@ -180,29 +187,17 @@ sshtui/
 
 ## Known limitations
 
-- **Doesn't follow `Include` directives** — only the top-level
-  `~/.ssh/config` is read and written; hosts defined in files pulled in via
-  `Include` are not visible.
+- **Doesn't follow `Include` directives** — only one file is read and
+  written per run, so hosts pulled in via `Include` aren't visible unless
+  you point `--config` directly at that file instead - there's no unified
+  view across multiple files.
 - **Grouping is alias-based** — grouping is purely a string convention
   (every `--`-separated segment of the alias becomes a nesting level), not
   a configurable taxonomy.
 - **No Windows support** — relies on `os.execvp` and POSIX terminal
   semantics.
 
-## Development
+## Contributing
 
-Run the app straight from source without touching the installed tool:
-
-```sh
-uv run sshtui
-```
-
-`uv run` auto-detects `pyproject.toml`, creates/reuses a local `.venv` in
-this directory, and installs the declared dependencies — no flags needed.
-This `.venv` is separate from the one `uv tool install` manages under
-`~/.local/share/uv/tools/sshtui/`; either one reflects live edits to
-`sshtui/` immediately since both ultimately run this same source tree.
-
-There is no automated test suite; changes have been verified ad hoc using
-Textual's headless `Pilot` testing API (`App.run_test()`) against sandbox
-copies of `~/.ssh/config` in `/tmp`, never against the real file directly.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for running from source and testing
+notes.
