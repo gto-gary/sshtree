@@ -95,12 +95,9 @@ uv tool uninstall sshtui
 
 ## Usage
 
-Run `sshtui` from any shell. The top of the screen shows an ASCII banner
-with the app name and the installed version, read dynamically from package
-metadata (`importlib.metadata`) so it always matches whatever's actually
-installed. Next to it, a live summary shows the total host count and a
-reachability breakdown (up/down/checking) for whatever's currently
-visible - narrows to match when you filter with `/`.
+Run `sshtui` from any shell. The banner at the top shows the app name and
+version, plus a live host count and reachability breakdown
+(up/down/checking) that narrows to match your search filter.
 
 | Key | Action |
 |---|---|
@@ -135,39 +132,23 @@ command directly.
 
 ### Searching
 
-Press `/` to jump into the search box (from anywhere except while already
-typing in it), then type to filter live — matches are checked against the
-alias, `Hostname`, `User`, and `Port` of every host. Groups with no matches
-are hidden entirely. Press `Enter` to jump back into the filtered list, or
-`Escape` at any point to clear the filter and see everything again.
-
-Typing `extra:yes` filters to only hosts with directives beyond
-Hostname/User/Port (the `Extra` column); `extra:no` filters to hosts
-without any. This is an exact flag match rather than a substring search,
-since "has extra params" is a yes/no property, not text to search within.
-
-Typing `status:down` filters to only hosts currently showing the red
-"unreachable" dot; `status:up` for green/reachable, `status:unknown` for
-ones whose check hasn't resolved yet (also accepts `unreachable`,
-`reachable`, and `checking` as more readable synonyms). Same exact-match
-reasoning as `extra:` - reachability is a small fixed set of states, not
-free text.
-
-Group headers (`net`, `srv`, `lab`, `other`) can be expanded/collapsed with
-`Enter` or `Space` while highlighted.
+- `/` focuses the search box; type to filter live against alias,
+  `Hostname`, `User`, and `Port`. Groups with no matches are hidden.
+- `Enter` jumps back into the filtered list; `Escape` clears the filter.
+- `extra:yes` / `extra:no` — filter by whether a host has directives
+  beyond Hostname/User/Port (the `Extra` column).
+- `status:down` / `status:up` / `status:unknown` — filter by reachability
+  (also accepts `unreachable`/`reachable`/`checking` as synonyms).
+- Group headers (`net`, `srv`, `lab`, `other`) can be expanded/collapsed
+  with `Enter` or `Space` while highlighted.
 
 ### Adding or editing a host
 
-The edit form has three dedicated fields — `Hostname`, `User`, `Port` — plus
-a list of additional parameter rows. Each row has:
-
-- A **directive dropdown**, pre-populated with common `ssh_config` options.
-  Pick **Custom...** to type any directive name not in the list.
-- A **value** field.
-
-Click **+ Add parameter** to add another row, or the **✕** button on a row
-to remove it. **Save** writes the changes back to `~/.ssh/config`; **Cancel**
-discards them.
+- Dedicated `Hostname`, `User`, `Port` fields.
+- Repeatable rows for any other `ssh_config` option — a directive dropdown
+  (or **Custom...**) plus a value field.
+- **+ Add parameter** / **✕** — add or remove a row.
+- **Save** / **Cancel** — write to `~/.ssh/config`, or discard.
 
 ## How it works
 
@@ -199,9 +180,9 @@ sshtui/
 
 ## Known limitations
 
-- **Single file only** — `Include` directives in `~/.ssh/config` (for
-  pulling in other config files) are not followed; only the top-level file
-  is read and written.
+- **Doesn't follow `Include` directives** — only the top-level
+  `~/.ssh/config` is read and written; hosts defined in files pulled in via
+  `Include` are not visible.
 - **Grouping is alias-based** — grouping is purely a string convention
   (every `--`-separated segment of the alias becomes a nesting level), not
   a configurable taxonomy.
