@@ -14,6 +14,14 @@ CONFIG_PATH = Path.home() / ".ssh" / "config"
 CONFIG_HOME = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
 BACKUP_DIR = CONFIG_HOME / "sshtui" / "backups"
 
+
+def set_config_path(path: Path) -> None:
+    """Override CONFIG_PATH, e.g. from the --config CLI flag. Must be
+    called before load()/save() so every read/write in the run targets
+    the same file."""
+    global CONFIG_PATH
+    CONFIG_PATH = path
+
 # Fields shown as dedicated inputs in the edit form; everything else in a
 # host's params is treated as a generic key/value row.
 CORE_FIELDS = ("hostname", "user", "port")

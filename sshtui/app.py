@@ -10,6 +10,7 @@ from pathlib import Path
 
 from textual.app import App
 
+from . import config
 from .actions import ConnectAction, ScpAction, SftpAction
 from .screens.host_list import HostListScreen
 
@@ -74,7 +75,16 @@ def run() -> None:
             "the reconnect-with-up-arrow setup."
         ),
     )
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=None,
+        help="Path to the ssh config file to use (default: ~/.ssh/config)",
+    )
     args = parser.parse_args()
+
+    if args.config is not None:
+        config.set_config_path(args.config.expanduser())
 
     # App.run() blocks until the app exits and the terminal is fully
     # restored, then returns whatever was passed to Screen.exit(...).
