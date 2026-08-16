@@ -17,6 +17,8 @@ one-key connect, add, edit, and delete — while leaving the rest of your file
 - **Connect with `Enter`** — execs `ssh <alias>` in the same terminal, same
   as typing it yourself; optional shell integration makes the up arrow
   recall it afterward.
+- **Connect and record with `R`** — same as `Enter`, but the full session
+  is also logged to `~/Documents/sshtui/<alias>-<timestamp>.log`.
 - **Drop into `sftp` with `f`** — opens an interactive `sftp` prompt on the
   selected host.
 - **Copy a file with `s`** — upload or download via `scp`, with a local
@@ -110,6 +112,7 @@ sshtui --config ~/.ssh/config.work
 |---|---|
 | `↑` / `↓` | Move selection |
 | `Enter` | Connect via `ssh` to the selected host |
+| `R` | Connect and record the session to `~/Documents/sshtui/` |
 | `a` | Add a new host |
 | `e` | Edit the selected host |
 | `c` | Clone the selected host into a new one |
