@@ -9,6 +9,24 @@ minor releases.
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-08-16
+
+### Added
+
+- `--config <path>` flag to read and write a different ssh config file
+  instead of the default `~/.ssh/config`.
+- `R` connects and records the full session to
+  `~/Documents/sshtui/<alias>-<timestamp>.log` via `script(1)`, both when
+  run directly and through the shell-integration wrapper.
+
+### Fixed
+
+- `app.css` was missing from built wheels (any non-editable install -
+  `pip install`, `uv tool install` without `--editable`, etc.), causing a
+  `StylesheetError` at launch. Only the documented `--editable` install
+  worked, since it reads straight from the source tree instead of a built
+  wheel.
+
 ## [0.4.2] - 2026-08-15
 
 ### Fixed
