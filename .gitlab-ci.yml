@@ -1,5 +1,6 @@
 stages:
   - build
+  - release
 
 build:linux:
   stage: build
@@ -15,3 +16,23 @@ build:linux:
   artifacts:
     paths:
       - dist/sshtui-linux
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  needs:
+    - build:linux
+  script:
+    - |
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+           --upload-file dist/sshtui-linux \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sshtui/${CI_COMMIT_TAG}/sshtui-linux"
+  release:
+    tag_name: ${CI_COMMIT_TAG}
+    description: "sshtui ${CI_COMMIT_TAG}"
+    assets:
+      links:
+        - name: sshtui-linux
+          url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sshtui/${CI_COMMIT_TAG}/sshtui-linux"
