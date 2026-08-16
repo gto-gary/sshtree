@@ -10,15 +10,28 @@ trivial (no shell-quoting needed to survive spaces in paths)."""
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
 from pathlib import Path
+
+SESSION_LOG_DIR = Path.home() / "Documents" / "sshtui"
+
+
+def session_log_path(alias: str) -> Path:
+    """Computed once per recorded connection (not re-derived per code path,
+    which would risk two different timestamps for the same session)."""
+    stamp = time.strftime("%Y%m%dT%H%M%S")
+    return SESSION_LOG_DIR / f"{alias}-{stamp}.log"
 
 
 @dataclass(frozen=True)
 class ConnectAction:
     alias: str
+    record_to: Path | None = None  # log path if this session should be recorded
 
     def print_only_lines(self) -> list[str]:
+        if self.record_to is not None:
+            return ["record", self.alias, str(self.record_to)]
         return ["connect", self.alias]
 
 

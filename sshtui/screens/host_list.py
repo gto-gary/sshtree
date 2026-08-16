@@ -14,7 +14,7 @@ from textual.widgets import Footer, Header, Input, Static, Tree
 from textual.widgets.tree import TreeNode
 
 from .. import config, history, reachability
-from ..actions import ConnectAction, ScpAction, SftpAction
+from ..actions import ConnectAction, ScpAction, SftpAction, session_log_path
 from .confirm import ConfirmScreen
 from .host_edit import HostEditScreen
 from .scp import ScpScreen
@@ -78,6 +78,7 @@ class HostListScreen(Screen):
         Binding("s", "scp_host", "SCP copy"),
         Binding("d", "delete_host", "Delete"),
         Binding("r", "refresh_reachability", "Refresh"),
+        Binding("R", "connect_and_record", "Record"),
         Binding("slash", "focus_search", "Search", show=True),
         Binding("escape", "clear_search", "Clear search"),
         Binding("q", "quit", "Quit"),
@@ -402,6 +403,13 @@ class HostListScreen(Screen):
         # Same reasoning as connect: exit cleanly first, exec sftp only
         # after Textual has released the terminal.
         self.app.exit(SftpAction(alias))
+
+    def action_connect_and_record(self) -> None:
+        alias = self.selected_alias()
+        if alias is None:
+            return
+        history.record_use(alias)
+        self.app.exit(ConnectAction(alias, record_to=session_log_path(alias)))
 
     @work
     async def action_delete_host(self) -> None:

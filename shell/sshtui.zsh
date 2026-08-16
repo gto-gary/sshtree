@@ -31,6 +31,16 @@ sshtui() {
             print -s -- "ssh $host"
             ssh "$host"
             ;;
+        record)
+            local host="${lines[2]}" logfile="${lines[3]}"
+            mkdir -p "${logfile:h}"
+            print -s -- "ssh $host"
+            if [[ "$(uname)" == "Darwin" ]]; then
+                script -q "$logfile" ssh "$host"
+            else
+                script -q -c "ssh ${(q)host}" "$logfile"
+            fi
+            ;;
         sftp)
             local host="${lines[2]}"
             print -s -- "sftp $host"

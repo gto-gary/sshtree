@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import shlex
 import sys
 import shutil
 from pathlib import Path
@@ -99,11 +100,35 @@ def run() -> None:
         return
 
     if isinstance(result, ConnectAction):
-        try:
-            os.execvp("ssh", ["ssh", result.alias])
-        except FileNotFoundError:
-            print("error: 'ssh' not found on PATH", file=sys.stderr)
-            sys.exit(1)
+        if result.record_to is not None:
+            result.record_to.parent.mkdir(parents=True, exist_ok=True)
+            # script's syntax for running a specific command differs by
+            # platform: BSD/macOS takes it as trailing argv (no shell
+            # involved), util-linux/Linux takes it as a single string via
+            # -c that IT shell-execs internally - quote the alias for that
+            # one case, since it's the only place in this codebase a value
+            # from ~/.ssh/config passes through a shell rather than argv.
+            if sys.platform == "darwin":
+                cmd = ["script", "-q", str(result.record_to), "ssh", result.alias]
+            else:
+                cmd = [
+                    "script",
+                    "-q",
+                    "-c",
+                    f"ssh {shlex.quote(result.alias)}",
+                    str(result.record_to),
+                ]
+            try:
+                os.execvp("script", cmd)
+            except FileNotFoundError:
+                print("error: 'script' not found on PATH", file=sys.stderr)
+                sys.exit(1)
+        else:
+            try:
+                os.execvp("ssh", ["ssh", result.alias])
+            except FileNotFoundError:
+                print("error: 'ssh' not found on PATH", file=sys.stderr)
+                sys.exit(1)
     elif isinstance(result, SftpAction):
         try:
             os.execvp("sftp", ["sftp", result.alias])
