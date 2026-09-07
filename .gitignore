@@ -1,7 +1,2 @@
-__pycache__/
-*.pyc
-*.egg-info/
-.venv/
-
-go/bin/
-go/dist/
+bin/
+dist/

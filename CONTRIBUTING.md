@@ -1,21 +1,29 @@
 # Contributing
 
-## Running from source
-
-Run the app straight from source without touching the installed tool:
+## Building
 
 ```sh
-uv run sshtui
+make build
 ```
 
-`uv run` auto-detects `pyproject.toml`, creates/reuses a local `.venv` in
-this directory, and installs the declared dependencies — no flags needed.
-This `.venv` is separate from the one `uv tool install` manages under
-`~/.local/share/uv/tools/sshtui/`; either one reflects live edits to
-`sshtui/` immediately since both ultimately run this same source tree.
+Builds the `sshtui` binary into `bin/`. `make install` installs it via
+`go install ./cmd/sshtui` instead.
 
 ## Testing
 
-There is no automated test suite; changes have been verified ad hoc using
-Textual's headless `Pilot` testing API (`App.run_test()`) against sandbox
-copies of `~/.ssh/config` in `/tmp`, never against the real file directly.
+```sh
+make test
+```
+
+Runs the full test suite (`go test ./...`), including the config-editing
+golden tests under `internal/config/testdata/`, and the UI/actions/history/
+reachability/dispatch/shell-init suites under `internal/*/*_test.go` and
+`cmd/sshtui/*_test.go`.
+
+## Vetting
+
+```sh
+make vet
+```
+
+Runs `go vet ./...`. Run this along with `gofmt -l .` before committing.
