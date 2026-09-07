@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
 	"gitlab.com/gto_gary/sshtui/go/internal/config"
 	"gitlab.com/gto_gary/sshtui/go/internal/ui"
@@ -32,8 +33,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	m := ui.New(cfg, *configPath)
-
 	// Render to and read from the controlling terminal directly, not
 	// stdin/stdout: --print-only is meant to be run as `output=$(sshtui
 	// --print-only)`, which redirects stdout to a pipe for the shell to
@@ -41,10 +40,23 @@ func main() {
 	// mixed into that captured output instead of just the plain
 	// print-only-protocol lines printed after Run() returns.
 	opts := []tea.ProgramOption{tea.WithAltScreen(), tea.WithInputTTY(), tea.WithMouseCellMotion()}
-	if tty, err := os.OpenFile("/dev/tty", os.O_WRONLY, 0); err == nil {
+	if tty, err := os.OpenFile("/dev/tty", os.O_RDWR, 0); err == nil {
 		defer tty.Close()
 		opts = append(opts, tea.WithOutput(tty))
+
+		// lipgloss's default renderer detects color support by inspecting
+		// os.Stdout specifically — when that's redirected (the exact case
+		// above), it concludes there's no color support. Point the default
+		// renderer at the real tty instead so color detection reflects the
+		// actual terminal, not the redirected stdout.
+		lipgloss.SetDefaultRenderer(lipgloss.NewRenderer(tty))
 	}
+	// Must run after the SetDefaultRenderer call above (if any) and before
+	// the first View(): see InitStyles' doc comment for why this can't just
+	// be ordinary package-level var initializers in internal/ui.
+	ui.InitStyles()
+
+	m := ui.New(cfg, *configPath)
 
 	// tea.Program.Run() blocks until the app exits and the terminal is
 	// fully restored, then returns the final model — only then is it safe

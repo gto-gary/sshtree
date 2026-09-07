@@ -23,49 +23,46 @@ var (
 	colorBarBg     = lipgloss.Color("236") // solid dark background for the top banner/column-header/footer bars
 )
 
+// Every style below is populated by InitStyles, not by var initializers —
+// see InitStyles' doc comment for why that distinction actually matters
+// here (it's not just tidiness).
 var (
-	upStyle        = lipgloss.NewStyle().Foreground(colorUp)
-	downStyle      = lipgloss.NewStyle().Foreground(colorDown)
-	unknownStyle   = lipgloss.NewStyle().Foreground(colorUnknown)
-	bannerStyle    = lipgloss.NewStyle().Bold(true).Foreground(colorPrimary)
-	cursorStyle    = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("0")).Background(colorPrimary)
-	groupStyle     = lipgloss.NewStyle().Bold(true).Foreground(colorGroup)
-	treeGuideStyle = lipgloss.NewStyle().Foreground(colorTreeGuide)
-	errorStyle     = lipgloss.NewStyle().Foreground(colorError)
+	upStyle        lipgloss.Style
+	downStyle      lipgloss.Style
+	unknownStyle   lipgloss.Style
+	bannerStyle    lipgloss.Style
+	cursorStyle    lipgloss.Style
+	groupStyle     lipgloss.Style
+	treeGuideStyle lipgloss.Style
+	errorStyle     lipgloss.Style
 
 	// Inline keybinding hints (e.g. a dialog's "tab move · esc cancel"
 	// footer line): the key itself picked out in the same accent color used
 	// for the bottom bar's keys, description in a dimmer neutral tone.
-	hintKeyStyle  = lipgloss.NewStyle().Bold(true).Foreground(colorPrimary)
-	hintDescStyle = lipgloss.NewStyle().Foreground(colorMuted)
+	hintKeyStyle  lipgloss.Style
+	hintDescStyle lipgloss.Style
 
 	// secondaryColumnStyle dims the Hostname/Port/User/Extra columns in the
 	// host list so Alias reads as the visually primary field per row.
-	secondaryColumnStyle = lipgloss.NewStyle().Foreground(colorMuted)
+	secondaryColumnStyle lipgloss.Style
 
 	// dialogStyle boxes a modal screen's content: rounded primary-colored
 	// border, padded — matches Python's shared dialog look (HostEditScreen/
 	// ConfirmScreen/ScpScreen/FilePickerScreen all get this same treatment).
-	dialogStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(colorPrimary).
-			Padding(1, 2)
+	dialogStyle lipgloss.Style
 
 	// nestedPanelStyle is the secondary-colored sub-panel used inside a
 	// dialog for a scrollable/nested list — the "Other parameters" rows in
 	// the edit form, or the directory listing in the file picker.
-	nestedPanelStyle = lipgloss.NewStyle().
-				Border(lipgloss.RoundedBorder()).
-				BorderForeground(colorSecondary).
-				Padding(0, 1)
+	nestedPanelStyle lipgloss.Style
 
 	// Footer bar: a full-width strip with one uniform background — the key
 	// itself is picked out with color/bold rather than a solid block, so
 	// the whole bar reads as one continuous strip instead of colored chips
 	// poking out of it.
-	footerBarStyle  = lipgloss.NewStyle().Background(colorBarBg)
-	footerKeyStyle  = footerBarStyle.Foreground(colorPrimary).Bold(true)
-	footerDescStyle = footerBarStyle.Foreground(lipgloss.Color("15"))
+	footerBarStyle  lipgloss.Style
+	footerKeyStyle  lipgloss.Style
+	footerDescStyle lipgloss.Style
 
 	// Top banner bar (app name/version + host stats) and the column-header
 	// bar (Alias/Hostname/Port/User/Extra): same solid, non-transparent
@@ -73,20 +70,75 @@ var (
 	// consistent treatment. Individual pieces need the background baked
 	// into each style (not just wrapped afterward), since nested lipgloss
 	// Render() calls each emit their own reset codes.
-	barTextStyle       = lipgloss.NewStyle().Background(colorBarBg).Foreground(lipgloss.Color("15"))
-	bannerTitleStyle   = barTextStyle.Bold(true).Foreground(colorPrimary)
-	bannerUpStyle      = barTextStyle.Foreground(colorUp)
-	bannerDownStyle    = barTextStyle.Foreground(colorDown)
-	bannerUnknownStyle = barTextStyle.Foreground(colorUnknown)
-	headerBarStyle     = barTextStyle.Bold(true)
+	barTextStyle       lipgloss.Style
+	bannerTitleStyle   lipgloss.Style
+	bannerUpStyle      lipgloss.Style
+	bannerDownStyle    lipgloss.Style
+	bannerUnknownStyle lipgloss.Style
+	headerBarStyle     lipgloss.Style
 
 	// searchBarStyle boxes the search input in a full rounded, primary-
 	// colored border — matching the Python original's bordered search box.
-	searchBarStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(colorPrimary).
-			Padding(0, 1)
+	searchBarStyle lipgloss.Style
 )
+
+// InitStyles (re)builds every style in this package from lipgloss's current
+// default renderer. Call it once, after any call to
+// lipgloss.SetDefaultRenderer, before the first View().
+//
+// This can't be done with ordinary "var x = lipgloss.NewStyle()..."
+// initializers: lipgloss.Style captures a reference to whatever the default
+// renderer *is at construction time*, and Go initializes package-level vars
+// before main() runs at all — before main() ever gets a chance to point the
+// renderer at the real controlling terminal instead of (possibly redirected)
+// os.Stdout. cmd/sshtui/main.go does exactly that when it opens /dev/tty
+// (needed so --print-only's `$(sshtui --print-only)` capture doesn't also
+// swallow the rendered frames) — without this function, every style here
+// would have permanently bound itself to a renderer that saw a non-tty
+// os.Stdout and concluded there was no color support, rendering everything
+// in plain text with no way to distinguish the cursor-highlighted row (that
+// highlight is a color/background style too).
+func InitStyles() {
+	upStyle = lipgloss.NewStyle().Foreground(colorUp)
+	downStyle = lipgloss.NewStyle().Foreground(colorDown)
+	unknownStyle = lipgloss.NewStyle().Foreground(colorUnknown)
+	bannerStyle = lipgloss.NewStyle().Bold(true).Foreground(colorPrimary)
+	cursorStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("0")).Background(colorPrimary)
+	groupStyle = lipgloss.NewStyle().Bold(true).Foreground(colorGroup)
+	treeGuideStyle = lipgloss.NewStyle().Foreground(colorTreeGuide)
+	errorStyle = lipgloss.NewStyle().Foreground(colorError)
+
+	hintKeyStyle = lipgloss.NewStyle().Bold(true).Foreground(colorPrimary)
+	hintDescStyle = lipgloss.NewStyle().Foreground(colorMuted)
+
+	secondaryColumnStyle = lipgloss.NewStyle().Foreground(colorMuted)
+
+	dialogStyle = lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(colorPrimary).
+		Padding(1, 2)
+
+	nestedPanelStyle = lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(colorSecondary).
+		Padding(0, 1)
+
+	footerBarStyle = lipgloss.NewStyle().Background(colorBarBg)
+	footerKeyStyle = footerBarStyle.Foreground(colorPrimary).Bold(true)
+	footerDescStyle = footerBarStyle.Foreground(lipgloss.Color("15"))
+
+	barTextStyle = lipgloss.NewStyle().Background(colorBarBg).Foreground(lipgloss.Color("15"))
+	bannerTitleStyle = barTextStyle.Bold(true).Foreground(colorPrimary)
+	bannerUpStyle = barTextStyle.Foreground(colorUp)
+	bannerDownStyle = barTextStyle.Foreground(colorDown)
+	bannerUnknownStyle = barTextStyle.Foreground(colorUnknown)
+	headerBarStyle = barTextStyle.Bold(true)
+
+	searchBarStyle = lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(colorPrimary).
+		Padding(0, 1)
+}
 
 // renderKeyHints joins alternating key/description pairs into one inline
 // hint line — e.g. renderKeyHints("esc", "cancel", "enter", "save") — with
