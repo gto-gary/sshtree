@@ -12,3 +12,9 @@ This changelog covers the Go rewrite only, starting fresh from its own
 `CHANGELOG.md` on the `python` branch.
 
 ## [Unreleased]
+
+## [0.5.0] - 2026-09-07
+
+Initial versioned release of the Go rewrite: feature-complete alongside
+the Python version, plus the self-contained `--shell-init` mechanism
+that supersedes the old external `shell/*.sh` scripts.
