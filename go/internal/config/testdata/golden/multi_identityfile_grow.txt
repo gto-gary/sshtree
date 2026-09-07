@@ -1,0 +1,7 @@
+Host multi
+  HostName multi.example.com
+  User ops
+  IdentityFile ~/.ssh/id_ed25519
+  IdentityFile ~/.ssh/id_rsa_legacy
+  IdentityFile ~/.ssh/id_rsa_backup
+  IdentityFile ~/.ssh/id_ecdsa_new

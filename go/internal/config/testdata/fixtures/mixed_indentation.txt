@@ -1,0 +1,12 @@
+Host tabbed
+	HostName tabbed.example.com
+	User root
+
+Host spaced4
+    HostName spaced4.example.com
+    User root
+
+Host spaced2
+  HostName spaced2.example.com
+  User root
+  Port 22

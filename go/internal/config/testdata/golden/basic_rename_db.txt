@@ -1,0 +1,11 @@
+# personal ssh config
+
+Host web
+  HostName web.example.com
+  User deploy
+  Port 22
+
+Host database
+  HostName db.example.com
+  User admin
+  Port 2222

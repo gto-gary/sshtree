@@ -1,0 +1,16 @@
+# top of file banner comment
+
+# web server, fronted by nginx
+Host web
+  HostName web.example.com
+  # deploy user, not root
+  User deploy
+  Port 22
+
+
+# staging box, flaky network
+
+Host db
+  HostName db.example.com
+  User admin
+# trailing comment with no following blank line

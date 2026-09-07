@@ -1,0 +1,3 @@
+Host foo bar *.example.com
+  User shared
+  Port 22

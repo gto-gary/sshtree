@@ -1,0 +1,4 @@
+Host bastion
+  HostName=bastion.example.com
+  User=admin # jump host account
+  Port 22

@@ -1,0 +1,11 @@
+Host web
+  HostName web.example.com
+  User deploy
+
+Host db
+  HostName db.example.com
+  User admin
+
+Host *
+  ServerAliveInterval 60
+  ServerAliveCountMax 3

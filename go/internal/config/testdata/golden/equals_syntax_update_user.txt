@@ -1,0 +1,5 @@
+Host bastion
+  HostName=bastion.example.com
+  User svc # jump host account
+  ProxyCommand=ssh -W %h:%p relay.example.com
+  Port 22
