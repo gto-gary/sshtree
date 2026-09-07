@@ -1,28 +1,40 @@
-# sshtui (Go)
+# sshtui
 
 A terminal UI for browsing, connecting to, and editing hosts in
-`~/.ssh/config`. This is a from-scratch Go rewrite of the original Python
-([Textual](https://github.com/Textualize/textual)-based) `sshtui`, built with
-[Bubble Tea](https://github.com/charmbracelet/bubbletea),
+`~/.ssh/config`. Built with [Bubble Tea](https://github.com/charmbracelet/bubbletea),
 [Bubbles](https://github.com/charmbracelet/bubbles), and
-[Lip Gloss](https://github.com/charmbracelet/lipgloss). It's a drop-in
-replacement: same features, same keybindings, same `~/.ssh/config`
-read/write behavior, same shell-integration protocol — just a single static
-binary instead of a Python/uv install.
+[Lip Gloss](https://github.com/charmbracelet/lipgloss).
 
-Feature-complete as of this rewrite: grouped host list, live reachability
-checks, search/filter, add/edit/clone/delete, scp upload/download with a
-file picker, connect/record/sftp, and the `--print-only` shell-integration
-mode. See [Differences from the Python version](#differences-from-the-python-version)
-for the handful of deliberate simplifications.
+Instead of hand-editing `~/.ssh/config` and running `ssh <alias>` from
+memory, `sshtui` gives you a live, grouped, searchable list of your hosts
+with one-key connect, add, edit, and delete — while leaving the rest of
+your file (comments, spacing, quirky formatting) untouched.
+
+## Features
+
+- **Grouped, searchable host list** — hosts nest by `--` in their alias
+  (`srv--nas--x` → group `srv` > subgroup `nas` > host `x`), with a live
+  reachability dot per host and mouse or keyboard navigation.
+- **Connect, record, sftp, scp** — `ssh` to a host directly, optionally
+  logging the session to a file, drop into an `sftp` prompt, or copy a file
+  in either direction with a real file picker.
+- **Add / edit / clone / delete hosts** — a form with dedicated
+  Hostname/User/Port fields, a scrollable list of any other `ssh_config`
+  directive, and a searchable picker for common directive names.
+- **Non-intrusive edits** — comments, formatting, and untouched directives
+  are preserved exactly on save; only what you actually change gets
+  rewritten.
+- **Automatic backup** — snapshots `~/.ssh/config` before the first write
+  in any run.
+- **Mouse support** — click a row to select it, double-click a host to
+  connect, click a group to expand/collapse, scroll to move the list.
+- **Single static binary** — no runtime dependencies.
 
 ## Requirements
 
 - Go 1.24.2+ to build from source (nothing extra needed to just run the
   binary once built)
-- macOS or Linux (anywhere `ssh`/`sftp`/`scp` and a terminal are available;
-  no Windows support — relies on `syscall.Exec` and POSIX terminal
-  semantics, same limitation as the Python version)
+- macOS or Linux (anywhere `ssh`/`sftp`/`scp` and a terminal are available)
 
 ## Installation
 
@@ -39,11 +51,9 @@ Then put the resulting `sshtui` binary somewhere on your `PATH` (e.g.
 go install ./cmd/sshtui
 ```
 
-No venv, no `uv`, no runtime dependency — it's a single static binary.
-
 ### Updating
 
-Pull new code, rebuild, replace the binary. That's the whole story.
+Pull new code, rebuild, replace the binary.
 
 ### Uninstalling
 
@@ -74,63 +84,78 @@ sshtui --config ~/.ssh/config.work
 | `Escape` | Clear the search filter and return focus to the list |
 | `q` / `Ctrl+C` | Quit |
 
+Click a row to select it, double-click a host to connect, click a group to
+expand/collapse it, or scroll the wheel to move the selection.
+
 ### Searching
 
-Same mini-language as the Python version: plain text substring-matches
-against alias/hostname/user/port; `extra:yes`/`extra:no` filters by whether
-a host has directives beyond Hostname/User/Port; `status:up`/`status:down`/
-`status:unknown` (or `reachable`/`unreachable`/`checking`) filters by live
-reachability.
+Press `/` to focus the search box, then type to filter the list live:
+
+- Plain text matches against alias, hostname, user, and port.
+- `extra:yes` or `extra:no` matches hosts by whether they have any directive
+  beyond Hostname/User/Port.
+- `status:up`, `status:down`, or `status:unknown` matches by live
+  reachability (`reachable`/`unreachable`/`checking` also work).
+
+Press `Enter` to jump back into the filtered list, or `Esc` to clear the
+filter and return to the full list.
 
 ### Adding or editing a host
 
-Dedicated Hostname/User/Port fields, plus a scrollable list of arbitrary
-`ssh_config` directive rows. `Tab`/`Shift+Tab` moves between fields,
-`Ctrl+N` adds a row, `Ctrl+D` removes the focused row, `Ctrl+S` saves,
-`Esc` cancels.
+Press `a` to add a new host, or `e` to edit the one currently selected.
+Move between fields with `Tab`/`Shift+Tab` or `↑`/`↓`:
+
+1. Fill in the **alias** (required) and any of **Hostname**/**User**/**Port**
+   you need — leave a field blank to omit that directive entirely. An empty
+   **Port** defaults to `22`.
+2. To add anything else (`ProxyJump`, `IdentityFile`, and so on), tab to the
+   **`+ Add parameter`** button and press `Enter`. A new row appears with a
+   directive-name field, a value field, and a **`✕`** button to remove it
+   again.
+3. On the directive-name field, press `Enter` to search a list of common
+   directive names, or just type your own — either way works the same.
+   Fill in the value field next to it.
+4. When you're done, tab to **Save** and press `Enter`, or **Cancel** to
+   discard your changes. `Esc` also cancels from anywhere in the form.
 
 ### Copying a file
 
-`s` opens the scp form: local path, remote path, `Ctrl+F` to browse for the
-local file (a real up-and-down file picker — not limited to browsing below
-a starting directory), `Ctrl+U` to upload, `Ctrl+G` to download, `Esc` to
-cancel.
+Select a host and press `s` to open the copy form. Move between fields and
+buttons with `Tab`/`Shift+Tab` or `↑`/`↓`:
+
+1. Fill in the **local path** yourself, or tab to **`Browse...`** and press
+   `Enter` to pick one with a real file picker — it can navigate both up
+   and down freely, not just downward from where it starts.
+2. Fill in the **remote path**.
+3. Tab to **`Upload →`** and press `Enter` to send the local file to the
+   host, or **`← Download`** to pull the remote file down. **Cancel** (or
+   `Esc` from anywhere in the form) backs out without copying anything.
 
 ### Reconnecting with the up arrow
 
-Same shell integration as the Python version — the wrapper scripts are
-unchanged and work with either binary, since they just shell out to
-`sshtui --print-only` and parse its stdout:
+Since `sshtui` execs `ssh`/`sftp`/`scp` directly, your shell history only
+ever shows "ran `sshtui`", so the up arrow just reopens the picker instead
+of recalling the actual command. To make it recall the real command
+instead, add this to your shell rc file and reload your shell:
 
 ```sh
-# ~/.zshrc (or ~/.bashrc, sourcing shell/sshtui.bash instead)
-source /path/to/sshtui/shell/sshtui.zsh
+# ~/.zshrc
+eval "$(sshtui --shell-init zsh)"
 ```
 
-Use `command sshtui` to bypass it if you need the plain installed command
-directly.
-
-## How it works
-
-### File layout
-
-```
-go/
-├── go.mod
-├── cmd/sshtui/          # entry point, flag parsing, exec dispatch
-│   ├── main.go
-│   └── dispatch.go      # syscall.Exec into ssh/sftp/scp/script
-└── internal/
-    ├── config/          # format-preserving ~/.ssh/config parser/writer
-    ├── actions/         # Connect/Sftp/Scp action types
-    ├── history/         # recent/frequent-use tracking (unused for display, kept for parity)
-    ├── reachability/     # concurrent TCP reachability checks
-    └── ui/               # Bubble Tea model: host list + all child screens
+```sh
+# ~/.bashrc
+eval "$(sshtui --shell-init bash)"
 ```
 
-### Data files
+No file to find or path to hardcode — the shell integration is built into
+the binary itself. This defines a shell function named `sshtui` that
+shadows the installed binary for interactive use: it runs `sshtui
+--print-only`, then runs the real `ssh`/`sftp`/`scp` command itself
+afterward, recording it in your shell history. Use `command sshtui` to
+bypass it if you need the plain installed command directly.
 
-Same locations and formats as the Python version:
+## Data files
 
 | Path | Purpose |
 |---|---|
@@ -139,45 +164,13 @@ Same locations and formats as the Python version:
 | `$XDG_CONFIG_HOME/sshtui/backups/config-<timestamp>` | Snapshot of `~/.ssh/config` taken before the first write each run (defaults to `~/.config/sshtui/backups/`). |
 | `~/Documents/sshtui/<alias>-<timestamp>.log` | Recorded session logs (from `R`). |
 
-### The config parser
-
-The highest-risk piece of this port: `internal/config` is a hand-rolled,
-format-preserving parser/writer (no existing Go library does this well).
-Comments, blank lines, indentation, and any directive not explicitly
-touched by an edit round-trip byte-for-byte. See
-`internal/config/config_test.go` for the golden-file test suite this is
-verified against — that's the actual safety net for a bug class that could
-otherwise corrupt a real `~/.ssh/config`.
-
 ## Known limitations
 
-Same as the Python version:
-
-- **Doesn't follow `Include` directives** — only one file is read/written
-  per run; point `--config` directly at an included file if you need to
-  edit it.
-- **Grouping is alias-based** — every `--`-separated segment of the alias
-  becomes a nesting level; it's a string convention, not a configurable
-  taxonomy.
-- **No Windows support.**
-
-## Differences from the Python version
-
-A few deliberate simplifications made during the rewrite, none of which
-lose core functionality:
-
-- **No directive-name dropdown/autocomplete** in the edit form — directive
-  names are free-text instead of picked from a curated list with a
-  "Custom..." escape hatch. Typing `ProxyJump` works exactly the same as
-  selecting it would have; you just don't get autocomplete.
-- **No "jump to an arbitrary path" in the file picker** — Python needed
-  this because Textual's `DirectoryTree` can only browse *downward* from
-  its start point. `bubbles/filepicker` navigates both up and down freely,
-  so the workaround wasn't needed.
-- A handful of small **format-preservation improvements** over the Python
-  version's underlying `sshconf` library: an edited directive's original
-  indentation and case are preserved (sshconf always re-indents and
-  lowercases on edit), a trailing inline comment on an edited line survives
-  the edit, and a rename preserves any comment on the `Host` line itself
-  (sshconf drops it). None of these are behavior changes you'd notice
-  day-to-day — just less incidental reformatting of your config file.
+- **Doesn't follow `Include` directives** — only one file is read and
+  written per run, so hosts pulled in via `Include` aren't visible unless
+  you point `--config` directly at that file instead.
+- **Grouping is alias-based** — grouping is purely a string convention
+  (every `--`-separated segment of the alias becomes a nesting level), not
+  a configurable taxonomy.
+- **No Windows support** — relies on `syscall.Exec` and POSIX terminal
+  semantics.

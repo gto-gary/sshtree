@@ -19,6 +19,9 @@ builds:
     ldflags:
       - -s -w -X gitlab.com/gto_gary/sshtui/go/internal/ui.Version={{.Version}}
 
+# The binary is fully self-contained: shell integration (the "recall the
+# real ssh/sftp/scp command with the up arrow" behavior) is baked in via
+# `sshtui --shell-init zsh|bash`, not a separate file to bundle here.
 archives:
   - id: sshtui
     formats: [tar.gz]

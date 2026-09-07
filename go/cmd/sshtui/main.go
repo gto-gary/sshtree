@@ -18,9 +18,22 @@ import (
 func main() {
 	printOnly := flag.Bool("print-only", false,
 		"print the chosen action as lines instead of running it directly, "+
-			"for a wrapping shell function to run itself afterward (see shell/)")
+			"for the shell integration to run itself afterward (see --shell-init)")
+	shellInit := flag.String("shell-init", "",
+		`print shell integration code for the given shell ("zsh" or "bash") and exit; `+
+			`add eval "$(sshtui --shell-init zsh)" to your shell rc file`)
 	configPath := flag.String("config", defaultConfigPath(), "path to the ssh config file to browse/edit")
 	flag.Parse()
+
+	if *shellInit != "" {
+		script, err := shellInitScript(*shellInit)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "sshtui: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Print(script)
+		return
+	}
 
 	if *configPath == "" {
 		fmt.Fprintln(os.Stderr, "sshtui: could not determine home directory; pass --config explicitly")

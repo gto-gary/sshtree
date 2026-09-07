@@ -64,7 +64,7 @@ type hostEditModel struct {
 	port     textinput.Model
 	rows     []kvRow
 
-	focus int // flat field index: 0=alias,1=hostname,2=user,3=port,4+2i/5+2i=row i key/value, then buttonCount button slots
+	focus int // flat field index: 0=alias,1=hostname,2=user,3=port, then 3 slots per row (key, value, ✕ remove), then buttonCount button slots
 
 	editingAlias string          // "" if this is add/clone
 	taken        map[string]bool // every currently-taken alias
@@ -133,14 +133,18 @@ func newHostEditForClone(cloneAlias, source string, params map[string]config.Dir
 	return newHostEdit(fmt.Sprintf("Clone host: %s", source), cloneAlias, "", params, taken)
 }
 
+// rowSlots is how many focus positions each dynamic row occupies: key
+// field, value field, and a ✕ remove button.
+const rowSlots = 3
+
 // fieldCount includes the trailing button slots, so Tab cycles through them
 // too.
-func (f *hostEditModel) fieldCount() int { return 4 + 2*len(f.rows) + buttonCount }
+func (f *hostEditModel) fieldCount() int { return 4 + rowSlots*len(f.rows) + buttonCount }
 
 // buttonAt returns which button (buttonAddRow/buttonSave/buttonCancel) i
 // refers to, if any.
 func (f *hostEditModel) buttonAt(i int) (btn int, ok bool) {
-	base := 4 + 2*len(f.rows)
+	base := 4 + rowSlots*len(f.rows)
 	if i < base || i >= base+buttonCount {
 		return 0, false
 	}
@@ -148,14 +152,28 @@ func (f *hostEditModel) buttonAt(i int) (btn int, ok bool) {
 }
 
 // keyFieldRowAt returns which row's key field i refers to, if any (as
-// opposed to that row's value field, or a non-row field entirely).
+// opposed to that row's value field, its remove button, or a non-row
+// field entirely).
 func (f *hostEditModel) keyFieldRowAt(i int) (rowIdx int, ok bool) {
 	if i < 4 {
 		return 0, false
 	}
 	idx := i - 4
-	rowIdx = idx / 2
-	if rowIdx < 0 || rowIdx >= len(f.rows) || idx%2 != 0 {
+	rowIdx = idx / rowSlots
+	if rowIdx < 0 || rowIdx >= len(f.rows) || idx%rowSlots != 0 {
+		return 0, false
+	}
+	return rowIdx, true
+}
+
+// rowRemoveButtonAt returns which row's ✕ remove button i refers to, if any.
+func (f *hostEditModel) rowRemoveButtonAt(i int) (rowIdx int, ok bool) {
+	if i < 4 {
+		return 0, false
+	}
+	idx := i - 4
+	rowIdx = idx / rowSlots
+	if rowIdx < 0 || rowIdx >= len(f.rows) || idx%rowSlots != 2 {
 		return 0, false
 	}
 	return rowIdx, true
@@ -173,14 +191,17 @@ func (f *hostEditModel) fieldAt(i int) *textinput.Model {
 		return &f.port
 	case i >= 4:
 		idx := i - 4
-		rowIdx := idx / 2
+		rowIdx := idx / rowSlots
 		if rowIdx < 0 || rowIdx >= len(f.rows) {
 			return nil // out of range, or one of the trailing button slots
 		}
-		if idx%2 == 0 {
+		switch idx % rowSlots {
+		case 0:
 			return &f.rows[rowIdx].key
+		case 1:
+			return &f.rows[rowIdx].value
 		}
-		return &f.rows[rowIdx].value
+		return nil // the row's ✕ remove button — not a textinput
 	}
 	return nil
 }
@@ -201,18 +222,16 @@ func (f *hostEditModel) addRow() {
 		cur.Blur()
 	}
 	f.rows = append(f.rows, newKVRow("", ""))
-	f.focus = 4 + 2*len(f.rows) - 2 // the new row's key field
+	f.focus = 4 + rowSlots*len(f.rows) - rowSlots // the new row's key field
 	if next := f.fieldAt(f.focus); next != nil {
 		next.Focus()
 	}
 }
 
-func (f *hostEditModel) removeCurrentRow() {
-	if f.focus < 4 {
-		return
-	}
-	rowIdx := (f.focus - 4) / 2
-	if rowIdx >= len(f.rows) {
+// removeRow deletes rows[rowIdx], moving focus back into range if it was
+// past the end afterward.
+func (f *hostEditModel) removeRow(rowIdx int) {
+	if rowIdx < 0 || rowIdx >= len(f.rows) {
 		return
 	}
 	f.rows = append(f.rows[:rowIdx], f.rows[rowIdx+1:]...)
@@ -220,9 +239,21 @@ func (f *hostEditModel) removeCurrentRow() {
 	if f.focus >= n {
 		f.focus = n - 1
 	}
+	if f.focus < 0 {
+		f.focus = 0
+	}
 	if next := f.fieldAt(f.focus); next != nil {
 		next.Focus()
 	}
+}
+
+// removeCurrentRow is the Ctrl+D shortcut: removes whichever row currently
+// holds focus (its key field or value field — both count).
+func (f *hostEditModel) removeCurrentRow() {
+	if f.focus < 4 {
+		return
+	}
+	f.removeRow((f.focus - 4) / rowSlots)
 }
 
 func (f *hostEditModel) Update(msg tea.Msg) (*hostEditModel, tea.Cmd) {
@@ -268,6 +299,10 @@ func (f *hostEditModel) Update(msg tea.Msg) (*hostEditModel, tea.Cmd) {
 				case buttonCancel:
 					return f, func() tea.Msg { return hostEditDoneMsg{ok: false} }
 				}
+				return f, nil
+			}
+			if rowIdx, ok := f.rowRemoveButtonAt(f.focus); ok {
+				f.removeRow(rowIdx)
 				return f, nil
 			}
 			if rowIdx, ok := f.keyFieldRowAt(f.focus); ok {
@@ -374,11 +409,13 @@ func (f *hostEditModel) View(width, height int) string {
 	if len(f.rows) == 0 {
 		rows.WriteString("(none yet — use \"+ Add parameter\" below)")
 	} else {
+		removeFocusRow, hasRemoveFocus := f.rowRemoveButtonAt(f.focus)
 		for i, r := range f.rows {
 			if i > 0 {
 				rows.WriteString("\n")
 			}
-			fmt.Fprintf(&rows, "%s = %s", r.key.View(), r.value.View())
+			removeBtn := renderButton("✕", errorStyle, hasRemoveFocus && removeFocusRow == i)
+			fmt.Fprintf(&rows, "%s = %s  %s", r.key.View(), r.value.View(), removeBtn)
 		}
 	}
 	b.WriteString("\n")

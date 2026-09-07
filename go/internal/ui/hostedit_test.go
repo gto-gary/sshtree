@@ -102,6 +102,33 @@ func TestHostEditEscCancels(t *testing.T) {
 	}
 }
 
+func TestHostEditRemoveButtonRemovesRow(t *testing.T) {
+	f := newHostEditForAdd(map[string]bool{})
+	typeString(f, "web")
+
+	f.addRow()
+	typeString(f, "ProxyJump")
+	f.moveFocus(1)
+	typeString(f, "bastion")
+
+	if len(f.rows) != 1 {
+		t.Fatalf("expected 1 row, got %d", len(f.rows))
+	}
+
+	// Move onto that row's ✕ remove button (the 3rd of its 3 slots) and
+	// activate it with enter, same as clicking it would.
+	f.moveFocus(1)
+	if rowIdx, ok := f.rowRemoveButtonAt(f.focus); !ok || rowIdx != 0 {
+		t.Fatalf("expected focus on row 0's remove button, got focus=%d", f.focus)
+	}
+	next, _ := f.Update(keyMsg("enter"))
+	f = next
+
+	if len(f.rows) != 0 {
+		t.Fatalf("expected the row to be removed, got %d rows", len(f.rows))
+	}
+}
+
 func TestHostEditRowAddRemoveAndMultiValueGrouping(t *testing.T) {
 	f := newHostEditForAdd(map[string]bool{})
 	typeString(f, "web")
