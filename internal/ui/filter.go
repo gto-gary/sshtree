@@ -3,7 +3,7 @@ package ui
 import (
 	"strings"
 
-	"gitlab.com/gto_gary/sshtui/go/internal/config"
+	"gitlab.com/gto_gary/sshtui/internal/config"
 )
 
 // coreFields are the directives given dedicated, always-shown UI treatment;

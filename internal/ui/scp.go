@@ -9,7 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 
-	"gitlab.com/gto_gary/sshtui/go/internal/actions"
+	"gitlab.com/gto_gary/sshtui/internal/actions"
 )
 
 // scpDoneMsg carries the scp form's result back to the root model.

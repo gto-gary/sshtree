@@ -9,7 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"gitlab.com/gto_gary/sshtui/go/internal/config"
+	"gitlab.com/gto_gary/sshtui/internal/config"
 )
 
 // kvRow is one dynamic directive-name/value pair in the edit form. A

@@ -1,4 +1,4 @@
-module gitlab.com/gto_gary/sshtui/go
+module gitlab.com/gto_gary/sshtui
 
 go 1.24.2
 

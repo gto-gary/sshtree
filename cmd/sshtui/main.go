@@ -11,8 +11,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"gitlab.com/gto_gary/sshtui/go/internal/config"
-	"gitlab.com/gto_gary/sshtui/go/internal/ui"
+	"gitlab.com/gto_gary/sshtui/internal/config"
+	"gitlab.com/gto_gary/sshtui/internal/ui"
 )
 
 func main() {

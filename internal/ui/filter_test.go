@@ -3,7 +3,7 @@ package ui
 import (
 	"testing"
 
-	"gitlab.com/gto_gary/sshtui/go/internal/config"
+	"gitlab.com/gto_gary/sshtui/internal/config"
 )
 
 func params(pairs ...string) map[string]config.DirectiveValue {

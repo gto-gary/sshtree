@@ -10,9 +10,9 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"gitlab.com/gto_gary/sshtui/go/internal/actions"
-	"gitlab.com/gto_gary/sshtui/go/internal/config"
-	"gitlab.com/gto_gary/sshtui/go/internal/reachability"
+	"gitlab.com/gto_gary/sshtui/internal/actions"
+	"gitlab.com/gto_gary/sshtui/internal/config"
+	"gitlab.com/gto_gary/sshtui/internal/reachability"
 )
 
 // newTestModel builds a Model over testConfig(t), backed by a throwaway

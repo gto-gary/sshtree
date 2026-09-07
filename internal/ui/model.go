@@ -18,10 +18,10 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"gitlab.com/gto_gary/sshtui/go/internal/actions"
-	"gitlab.com/gto_gary/sshtui/go/internal/config"
-	"gitlab.com/gto_gary/sshtui/go/internal/history"
-	"gitlab.com/gto_gary/sshtui/go/internal/reachability"
+	"gitlab.com/gto_gary/sshtui/internal/actions"
+	"gitlab.com/gto_gary/sshtui/internal/config"
+	"gitlab.com/gto_gary/sshtui/internal/history"
+	"gitlab.com/gto_gary/sshtui/internal/reachability"
 )
 
 type rowKind int
