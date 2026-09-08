@@ -90,6 +90,33 @@ func TestCheckAllClosesChannelWhenDone(t *testing.T) {
 	}
 }
 
+func TestCheckAllCapsConcurrency(t *testing.T) {
+	// A non-routable address (TEST-NET-1, RFC 5737) hangs until Timeout
+	// rather than refusing immediately, so it lets us observe batching: if
+	// every dial fired at once, all targets would time out together in
+	// ~1xTimeout regardless of count. With concurrency capped below the
+	// target count, a second batch has to wait for the first to free up
+	// semaphore slots, so the run takes at least 2xTimeout.
+	n := maxConcurrent + 5
+	targets := make([]Target, n)
+	for i := range targets {
+		targets[i] = Target{Alias: string(rune('a' + i%26)), Host: "192.0.2.1", Port: 22}
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	start := time.Now()
+	for range CheckAll(ctx, targets) {
+	}
+	elapsed := time.Since(start)
+
+	if elapsed < 2*Timeout {
+		t.Errorf("CheckAll finished in %v for %d targets against a hanging host; want >= %v, "+
+			"which would indicate dials aren't capped at maxConcurrent=%d", elapsed, n, 2*Timeout, maxConcurrent)
+	}
+}
+
 func TestCheckAllRespectsCancellation(t *testing.T) {
 	// A non-routable address (TEST-NET-1, RFC 5737) that should hang rather
 	// than immediately refuse, so cancelling ctx is what ends the check.

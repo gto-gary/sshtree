@@ -13,6 +13,16 @@ This changelog covers the Go rewrite only, starting fresh from its own
 
 ## [Unreleased]
 
+### Fixed
+
+- Reachability checks now cap concurrent dials at 40 instead of firing one
+  per host with no limit. With a few hundred hosts, the unbounded version
+  could exceed macOS's default per-process file descriptor limit (`ulimit
+  -n`, commonly 256) — worse, Go's dialer races IPv4/IPv6 per host by
+  default, roughly doubling the effective socket count — causing dials to
+  fail with "too many open files" and show as red/unreachable even for
+  hosts that were actually up.
+
 ## [0.5.0] - 2026-09-07
 
 Initial versioned release of the Go rewrite: feature-complete alongside
