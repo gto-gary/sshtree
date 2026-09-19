@@ -13,6 +13,10 @@ This changelog covers the Go rewrite only, starting fresh from its own
 
 ## [Unreleased]
 
+### Added
+
+- MIT license.
+
 ### Fixed
 
 - Reachability checks now cap concurrent dials at 40 instead of firing one
@@ -22,6 +26,13 @@ This changelog covers the Go rewrite only, starting fresh from its own
   default, roughly doubling the effective socket count — causing dials to
   fail with "too many open files" and show as red/unreachable even for
   hosts that were actually up.
+
+### Documentation
+
+- README: documented the exact backup path, added a dedicated section
+  explaining how session recording works and where logs land, and
+  clarified that the two installation methods are alternatives, not
+  sequential steps.
 
 ## [0.5.0] - 2026-09-07
 
