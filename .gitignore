@@ -1,2 +1,14 @@
 bin/
 dist/
+/sshtui
+
+# OS
+.DS_Store
+
+# Editors
+.idea/
+.vscode/
+
+# Test/coverage output
+coverage.out
+coverage.html
