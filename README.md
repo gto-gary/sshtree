@@ -193,3 +193,7 @@ bypass it if you need the plain installed command directly.
   a configurable taxonomy.
 - **No Windows support** — relies on `syscall.Exec` and POSIX terminal
   semantics.
+
+## License
+
+[MIT](LICENSE)
