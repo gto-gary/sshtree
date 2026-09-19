@@ -1,12 +1,12 @@
 # sshtui
 
 A terminal UI for browsing, connecting to, and editing hosts in
-`~/.ssh/config`. Built with [Bubble Tea](https://github.com/charmbracelet/bubbletea),
+`~/.ssh/config`. Originally written in Phython re-written in go with [Bubble Tea](https://github.com/charmbracelet/bubbletea),
 [Bubbles](https://github.com/charmbracelet/bubbles), and
 [Lip Gloss](https://github.com/charmbracelet/lipgloss).
 
 Instead of hand-editing `~/.ssh/config` and running `ssh <alias>` from
-memory, `sshtui` gives you a live, grouped, searchable list of your hosts
+memory, `sshtui` gives you an easy to use live, grouped, searchable list of your hosts
 with one-key connect, add, edit, and delete — while leaving the rest of
 your file (comments, spacing, quirky formatting) untouched.
 
