@@ -6,8 +6,8 @@ A terminal UI for browsing, connecting to, and editing hosts in
 [Lip Gloss](https://github.com/charmbracelet/lipgloss).
 
 Instead of hand-editing `~/.ssh/config` and running `ssh <alias>` from
-memory, `sshtui` gives you an easy to use live, grouped, searchable list of your hosts
-with one-key connect, add, edit, and delete — while leaving the rest of
+memory, `sshtui` gives you an easy to use, live, grouped, searchable list of your hosts
+with one-key connect. Where you can add, edit, and delete, while leaving the rest of
 your file (comments, spacing, quirky formatting) untouched.
 
 ## Features
@@ -39,7 +39,7 @@ your file (comments, spacing, quirky formatting) untouched.
 
 ## Installation
 
-From this directory, pick one of the following:
+From the root directory of this repo, pick one of the following:
 
 - **Build, then place it on your `PATH` yourself:**
 
@@ -97,7 +97,7 @@ expand/collapse it, or scroll the wheel to move the selection.
 Press `/` to focus the search box, then type to filter the list live:
 
 - Plain text matches against alias, hostname, user, and port.
-- `extra:yes` or `extra:no` matches hosts by whether they have any directive
+- `extra:yes` or `extra:no` matches hosts by whether they have any directives
   beyond Hostname/User/Port.
 - `status:up`, `status:down`, or `status:unknown` matches by live
   reachability (`reachable`/`unreachable`/`checking` also work).
@@ -111,14 +111,14 @@ Press `a` to add a new host, or `e` to edit the one currently selected.
 Move between fields with `Tab`/`Shift+Tab` or `↑`/`↓`:
 
 1. Fill in the **alias** (required) and any of **Hostname**/**User**/**Port**
-   you need — leave a field blank to omit that directive entirely. An empty
+   you need, leave a field blank to omit that directive entirely. An empty
    **Port** defaults to `22`.
 2. To add anything else (`ProxyJump`, `IdentityFile`, and so on), tab to the
    **`+ Add parameter`** button and press `Enter`. A new row appears with a
    directive-name field, a value field, and a **`✕`** button to remove it
    again.
 3. On the directive-name field, press `Enter` to search a list of common
-   directive names, or just type your own — either way works the same.
+   directive names, or just type your own, either way works the same.
    Fill in the value field next to it.
 4. When you're done, tab to **Save** and press `Enter`, or **Cancel** to
    discard your changes. `Esc` also cancels from anywhere in the form.
@@ -129,7 +129,7 @@ Select a host and press `s` to open the copy form. Move between fields and
 buttons with `Tab`/`Shift+Tab` or `↑`/`↓`:
 
 1. Fill in the **local path** yourself, or tab to **`Browse...`** and press
-   `Enter` to pick one with a real file picker — it can navigate both up
+   `Enter` to pick one with a real file picker, it can navigate both up
    and down freely, not just downward from where it starts.
 2. Fill in the **remote path**.
 3. Tab to **`Upload →`** and press `Enter` to send the local file to the
