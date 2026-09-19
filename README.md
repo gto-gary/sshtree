@@ -25,7 +25,8 @@ your file (comments, spacing, quirky formatting) untouched.
   are preserved exactly on save; only what you actually change gets
   rewritten.
 - **Automatic backup** — snapshots `~/.ssh/config` before the first write
-  in any run.
+  in any run, saved to `$XDG_CONFIG_HOME/sshtui/backups/` (defaults to
+  `~/.config/sshtui/backups/`).
 - **Mouse support** — click a row to select it, double-click a host to
   connect, click a group to expand/collapse, scroll to move the list.
 - **Single static binary** — no runtime dependencies.
@@ -38,18 +39,22 @@ your file (comments, spacing, quirky formatting) untouched.
 
 ## Installation
 
-From this directory:
+From this directory, pick one of the following:
 
-```sh
-go build -o sshtui ./cmd/sshtui
-```
+- **Build, then place it on your `PATH` yourself:**
 
-Then put the resulting `sshtui` binary somewhere on your `PATH` (e.g.
-`~/.local/bin/`). Or install it directly into your Go bin directory:
+  ```sh
+  go build -o sshtui ./cmd/sshtui
+  ```
 
-```sh
-go install ./cmd/sshtui
-```
+  Then put the resulting `sshtui` binary somewhere on your `PATH` (e.g.
+  `~/.local/bin/`).
+
+- **Or, install it directly into your Go bin directory:**
+
+  ```sh
+  go install ./cmd/sshtui
+  ```
 
 ### Updating
 
@@ -72,7 +77,7 @@ sshtui --config ~/.ssh/config.work
 |---|---|
 | `↑`/`k`, `↓`/`j` | Move selection |
 | `Enter` / `Space` | Connect via `ssh` (on a host) or expand/collapse (on a group) |
-| `R` | Connect and record the session to `~/Documents/sshtui/` |
+| `R` | Connect and record the session (see [Recording a session](#recording-a-session)) |
 | `f` | Drop into an `sftp` prompt on the selected host |
 | `s` | Copy a file to/from the selected host via `scp` |
 | `a` | Add a new host |
@@ -131,6 +136,20 @@ buttons with `Tab`/`Shift+Tab` or `↑`/`↓`:
    host, or **`← Download`** to pull the remote file down. **Cancel** (or
    `Esc` from anywhere in the form) backs out without copying anything.
 
+### Recording a session
+
+Select a host and press `R` to connect via `ssh` while logging the entire
+terminal session (everything printed to your screen, not just what you
+type) to a file. Under the hood, `sshtui` execs the `script` command
+wrapped around `ssh <alias>` — `script -q <path> ssh <alias>` on
+macOS/BSD, `script -q -c "ssh <alias>" <path>` on Linux — so recording
+starts the moment the connection opens and ends when you disconnect.
+
+The log is written to `~/Documents/sshtui/<alias>-<timestamp>.log`, where
+`<timestamp>` reflects the moment recording starts (format
+`YYYYMMDDTHHMMSS`, e.g. `myhost-20260919T143012.log`). The `~/Documents/sshtui/`
+directory is created automatically if it doesn't already exist.
+
 ### Reconnecting with the up arrow
 
 Since `sshtui` execs `ssh`/`sftp`/`scp` directly, your shell history only
@@ -161,8 +180,8 @@ bypass it if you need the plain installed command directly.
 |---|---|
 | `~/.ssh/config` | The source of truth. Read on every screen refresh, written on every save. |
 | `$XDG_CONFIG_HOME/sshtui/history.json` | `{alias: {count, last_used}}` (defaults to `~/.config/sshtui/history.json`). |
-| `$XDG_CONFIG_HOME/sshtui/backups/config-<timestamp>` | Snapshot of `~/.ssh/config` taken before the first write each run (defaults to `~/.config/sshtui/backups/`). |
-| `~/Documents/sshtui/<alias>-<timestamp>.log` | Recorded session logs (from `R`). |
+| `$XDG_CONFIG_HOME/sshtui/backups/config-<timestamp>` | Snapshot of `~/.ssh/config` taken before the first write each run (defaults to `~/.config/sshtui/backups/`). See [Automatic backup](#features). |
+| `~/Documents/sshtui/<alias>-<timestamp>.log` | Recorded session logs (from `R`). See [Recording a session](#recording-a-session). |
 
 ## Known limitations
 
