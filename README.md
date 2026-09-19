@@ -10,6 +10,8 @@ memory, `sshtui` gives you an easy to use, live, grouped, searchable list of you
 with one-key connect. Where you can add, edit, and delete, while leaving the rest of
 your file (comments, spacing, quirky formatting) untouched.
 
+![sshtui host list, grouped by prefix with a live reachability dot per host](assets/screenshot.png)
+
 ## Features
 
 - **Grouped, searchable host list** — hosts nest by `--` in their alias
