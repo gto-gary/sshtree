@@ -1,7 +1,7 @@
 # sshtui
 
 A terminal UI for browsing, connecting to, and editing hosts in
-`~/.ssh/config`. Originally written in Phython re-written in go with [Bubble Tea](https://github.com/charmbracelet/bubbletea),
+`~/.ssh/config`. Originally written in Python, rewritten in Go with [Bubble Tea](https://github.com/charmbracelet/bubbletea),
 [Bubbles](https://github.com/charmbracelet/bubbles), and
 [Lip Gloss](https://github.com/charmbracelet/lipgloss).
 
