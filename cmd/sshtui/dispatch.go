@@ -9,7 +9,7 @@ import (
 	"strings"
 	"syscall"
 
-	"gitlab.com/gto_gary/sshtui/internal/actions"
+	"github.com/gto-gary/sshtui/internal/actions"
 )
 
 // dispatch execs into ssh/sftp/scp (or script, for a recorded connect)
