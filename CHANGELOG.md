@@ -13,6 +13,8 @@ This changelog covers the Go rewrite only, starting fresh from its own
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-03
+
 ### Added
 
 - MIT license.
