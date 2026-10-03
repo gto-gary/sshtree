@@ -10,9 +10,9 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/gto-gary/sshtui/internal/actions"
-	"github.com/gto-gary/sshtui/internal/config"
-	"github.com/gto-gary/sshtui/internal/reachability"
+	"github.com/gto-gary/sshtree/internal/actions"
+	"github.com/gto-gary/sshtree/internal/config"
+	"github.com/gto-gary/sshtree/internal/reachability"
 )
 
 // newTestModel builds a Model over testConfig(t), backed by a throwaway
@@ -433,7 +433,7 @@ func TestSaveConfigCreatesBackupOnFirstWriteOnly(t *testing.T) {
 	m.hostEdit.hostname.SetValue("b.example.com")
 	m = commitKey(t, m, "ctrl+s")
 
-	backupDir := filepath.Join(xdgHome, "sshtui", "backups")
+	backupDir := filepath.Join(xdgHome, "sshtree", "backups")
 	entries, err := os.ReadDir(backupDir)
 	if err != nil {
 		t.Fatalf("reading backup dir: %v", err)

@@ -13,11 +13,11 @@ func TestShellInitScriptKnownShells(t *testing.T) {
 			if err != nil {
 				t.Fatalf("shellInitScript(%q) returned error: %v", shell, err)
 			}
-			if !strings.Contains(script, "sshtui() {") {
-				t.Errorf("script doesn't define an sshtui() function:\n%s", script)
+			if !strings.Contains(script, "sshtree() {") {
+				t.Errorf("script doesn't define an sshtree() function:\n%s", script)
 			}
-			if !strings.Contains(script, "command sshtui --print-only") {
-				t.Errorf("script doesn't call command sshtui --print-only:\n%s", script)
+			if !strings.Contains(script, "command sshtree --print-only") {
+				t.Errorf("script doesn't call command sshtree --print-only:\n%s", script)
 			}
 			if strings.Contains(script, "source /path/to") {
 				t.Error("script still references the old file-sourcing setup instead of eval")

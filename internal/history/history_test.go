@@ -8,7 +8,7 @@ import (
 )
 
 func TestRecordUseCreatesFile(t *testing.T) {
-	store := &Store{Path: filepath.Join(t.TempDir(), "sshtui", "history.json")}
+	store := &Store{Path: filepath.Join(t.TempDir(), "sshtree", "history.json")}
 
 	if err := store.RecordUse("web"); err != nil {
 		t.Fatal(err)
@@ -87,7 +87,7 @@ func TestDefaultStoreRespectsXDGConfigHome(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := filepath.Join(dir, "sshtui", "history.json")
+	want := filepath.Join(dir, "sshtree", "history.json")
 	if store.Path != want {
 		t.Errorf("Path = %q, want %q", store.Path, want)
 	}

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/gto-gary/sshtui/internal/actions"
+	"github.com/gto-gary/sshtree/internal/actions"
 )
 
 // dispatch execs into ssh/sftp/scp (or script, for a recorded connect)
@@ -42,7 +42,7 @@ func dispatch(action actions.Action) {
 
 func recordAndConnect(a actions.Connect) {
 	if err := os.MkdirAll(filepath.Dir(a.RecordTo), 0o755); err != nil {
-		fmt.Fprintf(os.Stderr, "sshtui: %v\n", err)
+		fmt.Fprintf(os.Stderr, "sshtree: %v\n", err)
 		os.Exit(1)
 	}
 	// script's syntax for running a specific command differs by platform:

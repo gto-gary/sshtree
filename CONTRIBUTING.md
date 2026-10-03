@@ -6,8 +6,8 @@
 make build
 ```
 
-Builds the `sshtui` binary into `bin/`. `make install` installs it via
-`go install ./cmd/sshtui` instead.
+Builds the `sshtree` binary into `bin/`. `make install` installs it via
+`go install ./cmd/sshtree` instead.
 
 ## Testing
 
@@ -18,7 +18,7 @@ make test
 Runs the full test suite (`go test ./...`), including the config-editing
 golden tests under `internal/config/testdata/`, and the UI/actions/history/
 reachability/dispatch/shell-init suites under `internal/*/*_test.go` and
-`cmd/sshtui/*_test.go`.
+`cmd/sshtree/*_test.go`.
 
 ## Vetting
 

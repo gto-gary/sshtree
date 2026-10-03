@@ -1,4 +1,4 @@
-# sshtui
+# sshtree
 
 A terminal UI for browsing, connecting to, and editing hosts in
 `~/.ssh/config`. Originally written in Python, rewritten in Go with [Bubble Tea](https://github.com/charmbracelet/bubbletea),
@@ -6,11 +6,11 @@ A terminal UI for browsing, connecting to, and editing hosts in
 [Lip Gloss](https://github.com/charmbracelet/lipgloss).
 
 Instead of hand-editing `~/.ssh/config` and running `ssh <alias>` from
-memory, `sshtui` gives you an easy to use, live, grouped, searchable list of your hosts
+memory, `sshtree` gives you an easy to use, live, grouped, searchable list of your hosts
 with one-key connect. Where you can add, edit, and delete, while leaving the rest of
 your file (comments, spacing, quirky formatting) untouched.
 
-![sshtui demo: grouped host list, live reachability dots, search, and the add-host form](assets/demo.gif)
+![sshtree demo: grouped host list, live reachability dots, search, and the add-host form](assets/demo.gif)
 
 ## Features
 
@@ -27,8 +27,8 @@ your file (comments, spacing, quirky formatting) untouched.
   are preserved exactly on save; only what you actually change gets
   rewritten.
 - **Automatic backup** — snapshots `~/.ssh/config` before the first write
-  in any run, saved to `$XDG_CONFIG_HOME/sshtui/backups/` (defaults to
-  `~/.config/sshtui/backups/`).
+  in any run, saved to `$XDG_CONFIG_HOME/sshtree/backups/` (defaults to
+  `~/.config/sshtree/backups/`).
 - **Mouse support** — click a row to select it, double-click a host to
   connect, click a group to expand/collapse, scroll to move the list.
 - **Single static binary** — no runtime dependencies.
@@ -46,12 +46,12 @@ Pick one of the following:
 - **Download a prebuilt release (simplest):**
 
   Grab the archive for your platform from the [Releases
-  page](https://github.com/gto-gary/sshtui/releases), then:
+  page](https://github.com/gto-gary/sshtree/releases), then:
 
   ```sh
-  tar -xzf sshtui_<os>_<arch>.tar.gz
-  mv sshtui ~/.local/bin/   # or any other directory on your PATH
-  chmod +x ~/.local/bin/sshtui
+  tar -xzf sshtree_<os>_<arch>.tar.gz
+  mv sshtree ~/.local/bin/   # or any other directory on your PATH
+  chmod +x ~/.local/bin/sshtree
   ```
 
 - **Or build from source, then place it on your `PATH` yourself:**
@@ -59,16 +59,16 @@ Pick one of the following:
   From the root directory of this repo:
 
   ```sh
-  go build -o sshtui ./cmd/sshtui
+  go build -o sshtree ./cmd/sshtree
   ```
 
-  Then put the resulting `sshtui` binary somewhere on your `PATH` (e.g.
+  Then put the resulting `sshtree` binary somewhere on your `PATH` (e.g.
   `~/.local/bin/`).
 
 - **Or install it directly into your Go bin directory:**
 
   ```sh
-  go install ./cmd/sshtui
+  go install ./cmd/sshtree
   ```
 
 ### Updating
@@ -83,11 +83,11 @@ Delete the binary from wherever you put it.
 
 ## Usage
 
-Run `sshtui` from any shell. By default it reads and writes
+Run `sshtree` from any shell. By default it reads and writes
 `~/.ssh/config`; use `--config` to point it at a different file instead:
 
 ```sh
-sshtui --config ~/.ssh/config.work
+sshtree --config ~/.ssh/config.work
 ```
 
 | Key | Action |
@@ -157,38 +157,38 @@ buttons with `Tab`/`Shift+Tab` or `↑`/`↓`:
 
 Select a host and press `R` to connect via `ssh` while logging the entire
 terminal session (everything printed to your screen, not just what you
-type) to a file. Under the hood, `sshtui` execs the `script` command
+type) to a file. Under the hood, `sshtree` execs the `script` command
 wrapped around `ssh <alias>` — `script -q <path> ssh <alias>` on
 macOS/BSD, `script -q -c "ssh <alias>" <path>` on Linux — so recording
 starts the moment the connection opens and ends when you disconnect.
 
-The log is written to `~/Documents/sshtui/<alias>-<timestamp>.log`, where
+The log is written to `~/Documents/sshtree/<alias>-<timestamp>.log`, where
 `<timestamp>` reflects the moment recording starts (format
-`YYYYMMDDTHHMMSS`, e.g. `myhost-20260919T143012.log`). The `~/Documents/sshtui/`
+`YYYYMMDDTHHMMSS`, e.g. `myhost-20260919T143012.log`). The `~/Documents/sshtree/`
 directory is created automatically if it doesn't already exist.
 
 ### Reconnecting with the up arrow
 
-Since `sshtui` execs `ssh`/`sftp`/`scp` directly, your shell history only
-ever shows "ran `sshtui`", so the up arrow just reopens the picker instead
+Since `sshtree` execs `ssh`/`sftp`/`scp` directly, your shell history only
+ever shows "ran `sshtree`", so the up arrow just reopens the picker instead
 of recalling the actual command. To make it recall the real command
 instead, add this to your shell rc file and reload your shell:
 
 ```sh
 # ~/.zshrc
-eval "$(sshtui --shell-init zsh)"
+eval "$(sshtree --shell-init zsh)"
 ```
 
 ```sh
 # ~/.bashrc
-eval "$(sshtui --shell-init bash)"
+eval "$(sshtree --shell-init bash)"
 ```
 
 No file to find or path to hardcode — the shell integration is built into
-the binary itself. This defines a shell function named `sshtui` that
-shadows the installed binary for interactive use: it runs `sshtui
+the binary itself. This defines a shell function named `sshtree` that
+shadows the installed binary for interactive use: it runs `sshtree
 --print-only`, then runs the real `ssh`/`sftp`/`scp` command itself
-afterward, recording it in your shell history. Use `command sshtui` to
+afterward, recording it in your shell history. Use `command sshtree` to
 bypass it if you need the plain installed command directly.
 
 ## Data files
@@ -196,9 +196,9 @@ bypass it if you need the plain installed command directly.
 | Path | Purpose |
 |---|---|
 | `~/.ssh/config` | The source of truth. Read on every screen refresh, written on every save. |
-| `$XDG_CONFIG_HOME/sshtui/history.json` | `{alias: {count, last_used}}` (defaults to `~/.config/sshtui/history.json`). |
-| `$XDG_CONFIG_HOME/sshtui/backups/config-<timestamp>` | Snapshot of `~/.ssh/config` taken before the first write each run (defaults to `~/.config/sshtui/backups/`). See [Automatic backup](#features). |
-| `~/Documents/sshtui/<alias>-<timestamp>.log` | Recorded session logs (from `R`). See [Recording a session](#recording-a-session). |
+| `$XDG_CONFIG_HOME/sshtree/history.json` | `{alias: {count, last_used}}` (defaults to `~/.config/sshtree/history.json`). |
+| `$XDG_CONFIG_HOME/sshtree/backups/config-<timestamp>` | Snapshot of `~/.ssh/config` taken before the first write each run (defaults to `~/.config/sshtree/backups/`). See [Automatic backup](#features). |
+| `~/Documents/sshtree/<alias>-<timestamp>.log` | Recorded session logs (from `R`). See [Recording a session](#recording-a-session). |
 
 ## Known limitations
 

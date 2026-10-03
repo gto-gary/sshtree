@@ -4,8 +4,8 @@ import "fmt"
 
 // shellInitScript returns the shell integration function for the given
 // shell ("zsh" or "bash"), or an error for anything else. This is what
-// `sshtui --shell-init <shell>` prints, meant to be eval'd from a shell rc
-// file — e.g. `eval "$(sshtui --shell-init zsh)"` — so setting up the
+// `sshtree --shell-init <shell>` prints, meant to be eval'd from a shell rc
+// file — e.g. `eval "$(sshtree --shell-init zsh)"` — so setting up the
 // "recall the real command with the up arrow" behavior needs no external
 // file and no path to hardcode; it's baked into the binary itself.
 func shellInitScript(shell string) (string, error) {
@@ -19,26 +19,26 @@ func shellInitScript(shell string) (string, error) {
 	}
 }
 
-const zshInit = `# sshtui shell integration for zsh — add this to your ~/.zshrc:
-#   eval "$(sshtui --shell-init zsh)"
+const zshInit = `# sshtree shell integration for zsh — add this to your ~/.zshrc:
+#   eval "$(sshtree --shell-init zsh)"
 #
 # After a session ends - whether you quit normally, it timed out, or the
 # connection dropped - pressing the up arrow recalls the real command
 # (ssh, sftp, or scp for a file copy) so you can reconnect or retry
-# directly, without going back through the sshtui picker.
+# directly, without going back through the sshtree picker.
 #
-# How this works: ` + "`command sshtui --print-only`" + ` runs the picker and prints
+# How this works: ` + "`command sshtree --print-only`" + ` runs the picker and prints
 # what was chosen as plain lines (never runs ssh/sftp/scp itself in this
 # mode). This function captures that via $(...), then runs the real
 # command itself *after* that capture has completed - so it gets a normal
 # terminal, not one whose stdout is being captured (which would otherwise
 # swallow scp's progress bar, or an interactive sftp prompt).
 #
-# This defines a shell function named ` + "`sshtui`" + ` that shadows the installed
-# ` + "`sshtui`" + ` command for interactive use. Use ` + "`command sshtui`" + ` to bypass it.
-sshtui() {
+# This defines a shell function named ` + "`sshtree`" + ` that shadows the installed
+# ` + "`sshtree`" + ` command for interactive use. Use ` + "`command sshtree`" + ` to bypass it.
+sshtree() {
     local output
-    output=$(command sshtui --print-only) || return
+    output=$(command sshtree --print-only) || return
     [[ -z "$output" ]] && return
 
     local -a lines
@@ -80,26 +80,26 @@ sshtui() {
 }
 `
 
-const bashInit = `# sshtui shell integration for bash — add this to your ~/.bashrc:
-#   eval "$(sshtui --shell-init bash)"
+const bashInit = `# sshtree shell integration for bash — add this to your ~/.bashrc:
+#   eval "$(sshtree --shell-init bash)"
 #
 # After a session ends - whether you quit normally, it timed out, or the
 # connection dropped - pressing the up arrow recalls the real command
 # (ssh, sftp, or scp for a file copy) so you can reconnect or retry
-# directly, without going back through the sshtui picker.
+# directly, without going back through the sshtree picker.
 #
-# How this works: ` + "`command sshtui --print-only`" + ` runs the picker and prints
+# How this works: ` + "`command sshtree --print-only`" + ` runs the picker and prints
 # what was chosen as plain lines (never runs ssh/sftp/scp itself in this
 # mode). This function captures that via $(...), then runs the real
 # command itself *after* that capture has completed - so it gets a normal
 # terminal, not one whose stdout is being captured (which would otherwise
 # swallow scp's progress bar, or an interactive sftp prompt).
 #
-# This defines a shell function named ` + "`sshtui`" + ` that shadows the installed
-# ` + "`sshtui`" + ` command for interactive use. Use ` + "`command sshtui`" + ` to bypass it.
-sshtui() {
+# This defines a shell function named ` + "`sshtree`" + ` that shadows the installed
+# ` + "`sshtree`" + ` command for interactive use. Use ` + "`command sshtree`" + ` to bypass it.
+sshtree() {
     local output
-    output=$(command sshtui --print-only) || return
+    output=$(command sshtree --print-only) || return
     [[ -z "$output" ]] && return
 
     local -a lines

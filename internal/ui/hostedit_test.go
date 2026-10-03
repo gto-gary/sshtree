@@ -6,7 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/gto-gary/sshtui/internal/config"
+	"github.com/gto-gary/sshtree/internal/config"
 )
 
 func hostEditDone(t *testing.T, f *hostEditModel, key string) (hostEditDoneMsg, bool) {

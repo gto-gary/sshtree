@@ -1,6 +1,6 @@
 // Package actions defines the possible outcomes of the host-list screen:
 // what the app should exec into once the TUI has torn down and restored the
-// terminal (see cmd/sshtui's run loop for the actual exec dispatch).
+// terminal (see cmd/sshtree's run loop for the actual exec dispatch).
 package actions
 
 import (
@@ -13,10 +13,10 @@ import (
 // Action is something the app execs into after the TUI exits cleanly.
 type Action interface {
 	// PrintOnlyLines renders the action as one field per line, for the
-	// `--print-only` shell-integration protocol (see shell/sshtui.zsh /
-	// sshtui.bash): the wrapper reads these lines back and re-issues the
+	// `--print-only` shell-integration protocol (see shell/sshtree.zsh /
+	// sshtree.bash): the wrapper reads these lines back and re-issues the
 	// real command itself, so the user's shell history recalls the actual
-	// ssh/sftp/scp invocation instead of "ran sshtui".
+	// ssh/sftp/scp invocation instead of "ran sshtree".
 	PrintOnlyLines() []string
 }
 
@@ -60,7 +60,7 @@ func (a Scp) PrintOnlyLines() []string {
 }
 
 // SessionLogPath computes where a recorded session for alias would be
-// logged: ~/Documents/sshtui/<alias>-<timestamp>.log. Computed fresh each
+// logged: ~/Documents/sshtree/<alias>-<timestamp>.log. Computed fresh each
 // call so the timestamp reflects when recording actually starts.
 func SessionLogPath(alias string) (string, error) {
 	home, err := os.UserHomeDir()
@@ -68,7 +68,7 @@ func SessionLogPath(alias string) (string, error) {
 		return "", err
 	}
 	stamp := time.Now().Format("20060102T150405")
-	return filepath.Join(home, "Documents", "sshtui", alias+"-"+stamp+".log"), nil
+	return filepath.Join(home, "Documents", "sshtree", alias+"-"+stamp+".log"), nil
 }
 
 // ExpandUser expands a leading "~" or "~/" to the user's home directory.

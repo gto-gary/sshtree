@@ -3,7 +3,7 @@ package ui
 import (
 	"strings"
 
-	"github.com/gto-gary/sshtui/internal/config"
+	"github.com/gto-gary/sshtree/internal/config"
 )
 
 // coreFields are the directives given dedicated, always-shown UI treatment;

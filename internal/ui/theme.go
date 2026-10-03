@@ -91,8 +91,8 @@ var (
 // renderer *is at construction time*, and Go initializes package-level vars
 // before main() runs at all — before main() ever gets a chance to point the
 // renderer at the real controlling terminal instead of (possibly redirected)
-// os.Stdout. cmd/sshtui/main.go does exactly that when it opens /dev/tty
-// (needed so --print-only's `$(sshtui --print-only)` capture doesn't also
+// os.Stdout. cmd/sshtree/main.go does exactly that when it opens /dev/tty
+// (needed so --print-only's `$(sshtree --print-only)` capture doesn't also
 // swallow the rendered frames) — without this function, every style here
 // would have permanently bound itself to a renderer that saw a non-tty
 // os.Stdout and concluded there was no color support, rendering everything

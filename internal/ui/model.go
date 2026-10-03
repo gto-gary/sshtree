@@ -1,7 +1,7 @@
 // Package ui implements the Bubble Tea TUI: the host-list screen (grouped
 // tree, search/filter, reachability status, add/edit/clone/delete, scp) and
 // the child screens it pushes. Choosing a connect/sftp/scp action quits the
-// program; cmd/sshtui reads it back via ChosenAction and does the actual
+// program; cmd/sshtree reads it back via ChosenAction and does the actual
 // exec.
 package ui
 
@@ -18,10 +18,10 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/gto-gary/sshtui/internal/actions"
-	"github.com/gto-gary/sshtui/internal/config"
-	"github.com/gto-gary/sshtui/internal/history"
-	"github.com/gto-gary/sshtui/internal/reachability"
+	"github.com/gto-gary/sshtree/internal/actions"
+	"github.com/gto-gary/sshtree/internal/config"
+	"github.com/gto-gary/sshtree/internal/history"
+	"github.com/gto-gary/sshtree/internal/reachability"
 )
 
 type rowKind int
@@ -341,7 +341,7 @@ func backupConfig(path string) error {
 		}
 		configHome = filepath.Join(home, ".config")
 	}
-	dir := filepath.Join(configHome, "sshtui", "backups")
+	dir := filepath.Join(configHome, "sshtree", "backups")
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
@@ -855,7 +855,7 @@ var searchFooterBindings = []footerBinding{
 // caller, so the whole row reads as one solid bar rather than styled text
 // with gaps of the terminal's default background showing through.
 func (m *Model) renderBanner() string {
-	left := bannerTitleStyle.Render("sshtui v" + Version)
+	left := bannerTitleStyle.Render("sshtree v" + Version)
 
 	total := len(m.cfg.ListAliases())
 	up, down, checking := 0, 0, 0

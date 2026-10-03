@@ -11,9 +11,22 @@ This changelog covers the Go rewrite only, starting fresh from its own
 `0.1.0`. For the prior Python implementation's history, see
 `CHANGELOG.md` on the `python` branch.
 
+The project was later renamed from `sshtui` to `sshtree` (to avoid a name
+collision with an unrelated `sshtui` project) and this changelog restarts
+again at `0.1.0` under the new name. For history prior to the rename, see
+the `sshtui` tags up to `v0.6.0`.
+
 ## [Unreleased]
 
-## [0.6.0] - 2026-10-03
+## [0.1.0] - 2026-10-03
+
+### Changed
+
+- Renamed the project from `sshtui` to `sshtree`: new module path
+  (`github.com/gto-gary/sshtree`), binary name, and config directory
+  (`$XDG_CONFIG_HOME/sshtree`). No functional changes.
+
+## [0.6.0 (sshtui)] - 2026-10-03
 
 ### Added
 

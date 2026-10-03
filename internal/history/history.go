@@ -25,7 +25,7 @@ type Store struct {
 }
 
 // DefaultStore returns a Store pointing at
-// $XDG_CONFIG_HOME/sshtui/history.json (defaulting to ~/.config if
+// $XDG_CONFIG_HOME/sshtree/history.json (defaulting to ~/.config if
 // XDG_CONFIG_HOME is unset).
 func DefaultStore() (*Store, error) {
 	configHome := os.Getenv("XDG_CONFIG_HOME")
@@ -36,7 +36,7 @@ func DefaultStore() (*Store, error) {
 		}
 		configHome = filepath.Join(home, ".config")
 	}
-	return &Store{Path: filepath.Join(configHome, "sshtui", "history.json")}, nil
+	return &Store{Path: filepath.Join(configHome, "sshtree", "history.json")}, nil
 }
 
 // load reads the history file, tolerating a missing or corrupt file by

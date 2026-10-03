@@ -5,9 +5,9 @@ before:
     - go mod tidy
 
 builds:
-  - id: sshtui
-    main: ./cmd/sshtui
-    binary: sshtui
+  - id: sshtree
+    main: ./cmd/sshtree
+    binary: sshtree
     env:
       - CGO_ENABLED=0
     goos:
@@ -17,13 +17,13 @@ builds:
       - amd64
       - arm64
     ldflags:
-      - -s -w -X github.com/gto-gary/sshtui/internal/ui.Version={{.Version}}
+      - -s -w -X github.com/gto-gary/sshtree/internal/ui.Version={{.Version}}
 
 # The binary is fully self-contained: shell integration (the "recall the
 # real ssh/sftp/scp command with the up arrow" behavior) is baked in via
-# `sshtui --shell-init zsh|bash`, not a separate file to bundle here.
+# `sshtree --shell-init zsh|bash`, not a separate file to bundle here.
 archives:
-  - id: sshtui
+  - id: sshtree
     formats: [tar.gz]
     name_template: >-
       {{ .ProjectName }}_{{ .Os }}_{{ .Arch }}

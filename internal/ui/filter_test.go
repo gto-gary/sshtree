@@ -3,7 +3,7 @@ package ui
 import (
 	"testing"
 
-	"github.com/gto-gary/sshtui/internal/config"
+	"github.com/gto-gary/sshtree/internal/config"
 )
 
 func params(pairs ...string) map[string]config.DirectiveValue {

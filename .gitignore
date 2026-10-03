@@ -1,6 +1,6 @@
 bin/
 dist/
-/sshtui
+/sshtree
 
 # OS
 .DS_Store

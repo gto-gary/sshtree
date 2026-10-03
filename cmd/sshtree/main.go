@@ -1,4 +1,4 @@
-// Command sshtui is a terminal UI for browsing and editing hosts in
+// Command sshtree is a terminal UI for browsing and editing hosts in
 // ~/.ssh/config.
 package main
 
@@ -11,8 +11,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/gto-gary/sshtui/internal/config"
-	"github.com/gto-gary/sshtui/internal/ui"
+	"github.com/gto-gary/sshtree/internal/config"
+	"github.com/gto-gary/sshtree/internal/ui"
 )
 
 func main() {
@@ -21,14 +21,14 @@ func main() {
 			"for the shell integration to run itself afterward (see --shell-init)")
 	shellInit := flag.String("shell-init", "",
 		`print shell integration code for the given shell ("zsh" or "bash") and exit; `+
-			`add eval "$(sshtui --shell-init zsh)" to your shell rc file`)
+			`add eval "$(sshtree --shell-init zsh)" to your shell rc file`)
 	configPath := flag.String("config", defaultConfigPath(), "path to the ssh config file to browse/edit")
 	flag.Parse()
 
 	if *shellInit != "" {
 		script, err := shellInitScript(*shellInit)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "sshtui: %v\n", err)
+			fmt.Fprintf(os.Stderr, "sshtree: %v\n", err)
 			os.Exit(1)
 		}
 		fmt.Print(script)
@@ -36,18 +36,18 @@ func main() {
 	}
 
 	if *configPath == "" {
-		fmt.Fprintln(os.Stderr, "sshtui: could not determine home directory; pass --config explicitly")
+		fmt.Fprintln(os.Stderr, "sshtree: could not determine home directory; pass --config explicitly")
 		os.Exit(1)
 	}
 
 	cfg, err := config.Parse(*configPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "sshtui: %v\n", err)
+		fmt.Fprintf(os.Stderr, "sshtree: %v\n", err)
 		os.Exit(1)
 	}
 
 	// Render to and read from the controlling terminal directly, not
-	// stdin/stdout: --print-only is meant to be run as `output=$(sshtui
+	// stdin/stdout: --print-only is meant to be run as `output=$(sshtree
 	// --print-only)`, which redirects stdout to a pipe for the shell to
 	// capture — without this, the TUI's own rendered frames would end up
 	// mixed into that captured output instead of just the plain
@@ -76,7 +76,7 @@ func main() {
 	// to exec ssh/sftp/scp into the same terminal.
 	finalModel, err := tea.NewProgram(m, opts...).Run()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "sshtui: %v\n", err)
+		fmt.Fprintf(os.Stderr, "sshtree: %v\n", err)
 		os.Exit(1)
 	}
 

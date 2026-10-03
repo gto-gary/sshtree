@@ -75,7 +75,7 @@ func TestSessionLogPath(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	wantDir := filepath.Join(home, "Documents", "sshtui")
+	wantDir := filepath.Join(home, "Documents", "sshtree")
 	if filepath.Dir(path) != wantDir {
 		t.Errorf("SessionLogPath dir = %q, want %q", filepath.Dir(path), wantDir)
 	}
