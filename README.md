@@ -41,9 +41,22 @@ your file (comments, spacing, quirky formatting) untouched.
 
 ## Installation
 
-From the root directory of this repo, pick one of the following:
+Pick one of the following:
 
-- **Build, then place it on your `PATH` yourself:**
+- **Download a prebuilt release (simplest):**
+
+  Grab the archive for your platform from the [Releases
+  page](https://github.com/gto-gary/sshtui/releases), then:
+
+  ```sh
+  tar -xzf sshtui_<os>_<arch>.tar.gz
+  mv sshtui ~/.local/bin/   # or any other directory on your PATH
+  chmod +x ~/.local/bin/sshtui
+  ```
+
+- **Or build from source, then place it on your `PATH` yourself:**
+
+  From the root directory of this repo:
 
   ```sh
   go build -o sshtui ./cmd/sshtui
@@ -52,7 +65,7 @@ From the root directory of this repo, pick one of the following:
   Then put the resulting `sshtui` binary somewhere on your `PATH` (e.g.
   `~/.local/bin/`).
 
-- **Or, install it directly into your Go bin directory:**
+- **Or install it directly into your Go bin directory:**
 
   ```sh
   go install ./cmd/sshtui
@@ -60,7 +73,9 @@ From the root directory of this repo, pick one of the following:
 
 ### Updating
 
-Pull new code, rebuild, replace the binary.
+If you installed a release, download the newer release and repeat the
+steps above. If you built from source, pull new code, rebuild, and
+replace the binary.
 
 ### Uninstalling
 
