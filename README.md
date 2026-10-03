@@ -43,7 +43,18 @@ your file (comments, spacing, quirky formatting) untouched.
 
 Pick one of the following:
 
-- **Download a prebuilt release (simplest):**
+- **Install script (simplest):**
+
+  ```sh
+  curl -fsSL https://raw.githubusercontent.com/gto-gary/sshtree/main/install.sh | sh
+  ```
+
+  This downloads the latest release for your OS and architecture, verifies
+  its checksum, and installs it to `~/.local/bin`. Set
+  `SSHTREE_INSTALL_DIR` to install somewhere else, or `SSHTREE_VERSION`
+  (e.g. `v0.1.0`) to install a specific release.
+
+- **Or download a prebuilt release manually:**
 
   Grab the archive for your platform from the [Releases
   page](https://github.com/gto-gary/sshtree/releases), then:
@@ -73,8 +84,8 @@ Pick one of the following:
 
 ### Updating
 
-If you installed a release, download the newer release and repeat the
-steps above. If you built from source, pull new code, rebuild, and
+If you used the install script, run it again. If you downloaded a
+release manually, download the newer release and repeat the steps above. If you built from source, pull new code, rebuild, and
 replace the binary.
 
 ### Uninstalling
